@@ -1,5 +1,5 @@
 # Script for pre-processing urbanpop synthetic population data - generates epicast contact groupings (schoolgroups & workgroups), 
-# determines agent social class and re-assigns individuals with daytime locations outside of New Mexico
+# determines agent income stratum and re-assigns individuals with daytime locations outside of New Mexico
 
 import pandas as pd
 import numpy as np
@@ -7,7 +7,7 @@ import numpy as np
 rng = np.random.RandomState(10)
 
 # Avg. uni classroom size - https://publicuniversityhonors.com/2015/10/20/estimated-class-sizes-more-than-90-national-universities/
-uni_class = 37.4135
+uni_class = 37.545
 
 # Read in raw urbanpop synthetic population data
 urbanpop = pd.read_csv('../Data/Synthetic population/urbanpop_network_nm_001.csv')
@@ -73,6 +73,8 @@ urbanpop_schools = urbanpop[urbanpop['school_id'].notnull()]
 school_to_grades = urbanpop_schools.groupby(by=['school_id','daytime_blockgroup']).school_grade.apply(list)
 school_to_grades_dict = dict()
 
+
+# Randomly assign students and teachers to school groups based on county-level data
 sg_sizes = pd.read_csv('../Data/Misc/counties_schoolgroups.csv')
 
 sg_sizes['counties'] = [h[1:-2] for h in sg_sizes['counties']]
@@ -148,6 +150,8 @@ urbanpop['work_naics_temp'] = work_naics
 
 urbanpop_work = urbanpop[urbanpop['work_naics_temp'] > 0]
 
+
+# Randomly assign workers to work groups based on NAICS data
 naics_to_wg_size = pd.read_csv('../Data/Misc/workgroups.csv')
 
 naics_to_wg_size = naics_to_wg_size[naics_to_wg_size['FIPS'] == 35] # New Mexico
@@ -190,7 +194,7 @@ urbanpop['work_group'] = wgs
 
 urbanpop = urbanpop.drop('work_naics_temp', axis=1)
 
-# Assign social class based on household income
+# Assign income strata based on household income
 agents_hh = urbanpop.groupby(by=['household_id']).count()
 hh_size_lookup = dict(zip(agents_hh.index,agents_hh['household_income']))
 
@@ -202,20 +206,23 @@ median_national_income = 70784
 mean_hh_size = 2.51
 
 med_us_adj_hh_income = median_national_income / mean_hh_size**0.5
-ses_quantile_low = (2/3) * med_us_adj_hh_income 
-ses_quantile_high = 2 * med_us_adj_hh_income
-bins = [0,ses_quantile_low,ses_quantile_high]
+income_quantile_low = (2/3) * med_us_adj_hh_income 
+income_quantile_high = 2 * med_us_adj_hh_income
+bins = [0,income_quantile_low,income_quantile_high]
 
-social_class = np.empty(len(urbanpop))
+income = np.empty(len(urbanpop))
 k = 0
 
 for row in urbanpop.iterrows():
-    social_class[k] = int(np.digitize(row[1]['household_income_adjusted'],bins=bins))
+    income[k] = int(np.digitize(row[1]['household_income_adjusted'],bins=bins))
     k += 1
 
-urbanpop['social_class'] = social_class
+urbanpop['income'] = income
 
+# Drop excess columns
 urbanpop = urbanpop.drop('hh_size_scaler', axis=1)
 urbanpop = urbanpop.drop('household_income_adjusted', axis=1)
+urbanpop = urbanpop.drop('income_poverty_ratio', axis=1)
 
+# Output data to .csv file
 urbanpop.to_csv('../Data/Synthetic population/urbanpop_network_nm_001_processed.csv')
