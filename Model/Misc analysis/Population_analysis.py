@@ -1,3 +1,5 @@
+# Script for generating population summary (see Supplementary Material)
+
 import numpy as np
 import pandas as pd
 import seaborn as sb
@@ -20,7 +22,7 @@ agents['hh_size_scaler'] = [hh_size_lookup[h]**0.5 for h in agents['household_id
 agents['household_income_adjusted'] = agents['household_income'] / agents['hh_size_scaler']
 agents['household_income_adjusted'] = np.clip(a=agents['household_income_adjusted'], a_min=0, a_max=155000)
 
-fig, ax = plt.subplots(nrows=2, ncols=2)#, figsize=(8.3,9))
+fig, ax = plt.subplots(nrows=2, ncols=2)
 
 # Age: overall
 sb.histplot(agents, x='age', stat='percent',binwidth=5, binrange=(0,95), ax=ax[0,0], color='#1f77b4')
@@ -80,11 +82,6 @@ ax[0].legend(title='', loc='upper center', bbox_to_anchor=(0.5, -0.22),
           fancybox=False, labels=['Non-White', 'White'], ncol=2,frameon=False)
 
 
-
-# Race: age
-# sb.histplot(agents, x='age', stat='percent', hue='race_subset', binwidth=5, binrange=(0,95), ax=ax[0,1], multiple="dodge")
-# ax[0,1].set(title='Age', xlabel="Age", ylabel="Percentage of total \npopulation (%)")
-
 # Ethnicity: age
 sb.histplot(agents, x='age', stat='percent', hue='ethnicity', binwidth=5, binrange=(0,95), ax=ax[1])
 ax[1].set(title='Ethnicity-Age', xlabel="Age", ylabel="Percentage of total \npopulation (%)")
@@ -92,7 +89,7 @@ ax[1].legend(title='', loc='upper center', bbox_to_anchor=(0.5, -0.22),
           fancybox=False, labels=['Hispanic', 'Non-Hispanic'], ncol=2,frameon=False)
 
 # Income: age
-sb.histplot(agents, x='age', stat='percent', hue='social_class', binwidth=5, binrange=(0,95), ax=ax[2])
+sb.histplot(agents, x='age', stat='percent', hue='income', binwidth=5, binrange=(0,95), ax=ax[2])
 ax[2].set(title='Income-Age', xlabel="Age", ylabel="Percentage of total \npopulation (%)")
 ax[2].legend(title='', loc='upper center', bbox_to_anchor=(0.5, -0.22),
           fancybox=False, labels=['Upper', 'Middle', 'Lower'], ncol=2, frameon=False)
