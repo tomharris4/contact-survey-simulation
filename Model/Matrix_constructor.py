@@ -1,16 +1,22 @@
+# Script for constructing contact matrices from simulated contact surveys or full contact networks
+
 import glob
 import numpy as np
-import pandas as pd
 import pickle
 import copy
 
+# Generate population distribution by sociodemographic atrribute ('attr') among participants in a contact survey and overall population in contact network
 def get_pop_dist(G, attr, contact_survey):
 
+    # Define age brackets - 0-85years by 5year age groups
     bins = np.linspace(0,85,18)
+
+    # Define constants for total number of groups by race (R), ethnicity (E) and income (S)
     R = 7
     E = 2
     S = 3
     
+    # If contact_survey == None, return overall population distribution; otherwise, return survey participants distribution & overall population distribution
     if not contact_survey:
 
         dist = np.empty(len(G.nodes()),dtype=np.int32)
@@ -164,10 +170,10 @@ def get_pop_dist(G, attr, contact_survey):
 
         return dist_dict, dist_sampled_dict
 
+# Build contact matrix from simulated contact survey or full contact network
+def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetry=True, per_capita=True):
 
-
-def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetry=True, per_capita=True, target_groups=None):
-
+    # Define number of groups by stratification and stratification names
     bins = np.linspace(0,85,18)
     A = 18
 
@@ -180,6 +186,7 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
     ses_dist_labels = ['Lower','Middle', 'Upper']
     S = len(ses_dist_labels)
 
+    # Define number of groups in multiple stratification scenarios (e.g. age + ethnicity)
     A_E = A*E
     A_R = A*R
     A_S = A*S
@@ -187,12 +194,12 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
     group_lens = {'a':A, 'r':R, 'e':E, 's':S, 'ae':A_E, 'ar':A_R, 'as':A_S}
 
     group_cm = group_lens[attr]
-
+    
+    # Get population distribution of survey sample and total population
     full_pop_dist, sample_pop_dist = get_pop_dist(G, attr, contact_survey)
 
-
+    # If survey not specified, compute contact matrix for whole population; else, compute contact matrix for sampled population
     if not contact_survey:
-        # Compute groundtruth contact matrix for whole population
 
         cm = []
         cm_c = []
@@ -200,6 +207,7 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
         cm_w = []
         cm_s = []
 
+        # Initialise contact matrix structures
         for i in range(group_cm):
             cm.append([])
             cm_c.append([])
@@ -214,6 +222,7 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
                 cm_w[i].append(0)
                 cm_s[i].append(0)
 
+        # Iterate through contacts (u->v) and attribute them to contact matrix structures
         for u,v,data in G.edges(data=True):
             if attr == 'a':
                 u_group = np.digitize(G.nodes[u]['age'],bins) - 1
@@ -272,8 +281,6 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
                 cm_s[u_group][v_group] += 1
 
     else:
-        # Compute groundtruth and biased contact matrices for survey population
-
         sampled_nodes = pickle.load(open(contact_survey, 'rb'))
 
         cm = []
@@ -282,6 +289,7 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
         cm_w = []
         cm_s = []
 
+        # Initialise contact matrix structures
         for i in range(group_cm):
             cm.append([])
             cm_c.append([])
@@ -296,9 +304,7 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
                 cm_w[i].append(0)
                 cm_s[i].append(0)
 
-        if target_groups:
-            cm_binary = [[[0,0],[0,0]],[[0,0],[0,0]]] #[[contact matrix],[[sampled pop group 1, total pop group 1],[sampled pop group 2, total pop group 2]]]
-
+        # Iterate through contacts (u->v) and attribute them to contact matrix structures; if groundtruth, use real attributes
         for n in sampled_nodes:
             for u,v,data in G.edges(n, data=True):
                 if attr == 'a':
@@ -369,28 +375,28 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
                     u_group = u_group_age * S + u_group_ses
                     v_group = v_group_age * S + v_group_ses
 
-                cm[v_group][u_group] += 1
-                if target_groups:
-                    cm_binary[0][int(v_group in target_groups)][int(u_group in target_groups)] += 1
+                cm[u_group][v_group] += 1
 
                 if data['context'] == 'C_N' or data['context'] == 'C_D':
-                    cm_c[v_group][u_group] += 1
+                    cm_c[u_group][v_group] += 1
                 elif data['context'] == 'H':
-                    cm_h[v_group][u_group] += 1
+                    cm_h[u_group][v_group] += 1
                 elif data['context'] == 'W':
-                    cm_w[v_group][u_group] += 1
+                    cm_w[u_group][v_group] += 1
                 elif data['context'] == 'S':
-                    cm_s[v_group][u_group] += 1
+                    cm_s[u_group][v_group] += 1
 
-    for j in range(group_cm):
-        if j in sample_pop_dist:
-            for i in range(group_cm):
-                cm[i][j] = cm[i][j] / sample_pop_dist[j]
-                cm_c[i][j] = cm_c[i][j] / sample_pop_dist[j]
-                cm_h[i][j] = cm_h[i][j] / sample_pop_dist[j]
-                cm_w[i][j] = cm_w[i][j] / sample_pop_dist[j]
-                cm_s[i][j] = cm_s[i][j] / sample_pop_dist[j]
+    # Compute contact rates by dividing by sample population size
+    for i in range(group_cm):
+        if i in sample_pop_dist:
+            for j in range(group_cm):
+                cm[i][j] = cm[i][j] / sample_pop_dist[i]
+                cm_c[i][j] = cm_c[i][j] / sample_pop_dist[i]
+                cm_h[i][j] = cm_h[i][j] / sample_pop_dist[i]
+                cm_w[i][j] = cm_w[i][j] / sample_pop_dist[i]
+                cm_s[i][j] = cm_s[i][j] / sample_pop_dist[i]
 
+    # Adjust contact matrix for symmetry condition
     if symmetry:
         cm_temp = copy.deepcopy(cm)
         cm_c_temp = copy.deepcopy(cm_c)
@@ -398,73 +404,72 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
         cm_w_temp = copy.deepcopy(cm_w)
         cm_s_temp = copy.deepcopy(cm_s)
 
-        for j in range(group_cm):
-            for i in range(group_cm):
-                if j in full_pop_dist and i in full_pop_dist:
-                    cm[i][j] = (1 / full_pop_dist[j]) * ((cm_temp[i][j] * full_pop_dist[j]) + (cm_temp[j][i] * full_pop_dist[i])) / 2
-                    cm_c[i][j] = (1 / full_pop_dist[j]) * ((cm_c_temp[i][j] * full_pop_dist[j]) + (cm_c_temp[j][i] * full_pop_dist[i])) / 2
-                    cm_h[i][j] = (1 / full_pop_dist[j]) * ((cm_h_temp[i][j] * full_pop_dist[j]) + (cm_h_temp[j][i] * full_pop_dist[i])) / 2
-                    cm_w[i][j] = (1 / full_pop_dist[j]) * ((cm_w_temp[i][j] * full_pop_dist[j]) + (cm_w_temp[j][i] * full_pop_dist[i])) / 2
-                    cm_s[i][j] = (1 / full_pop_dist[j]) * ((cm_s_temp[i][j] * full_pop_dist[j]) + (cm_s_temp[j][i] * full_pop_dist[i])) / 2
+        for i in range(group_cm):
+            for j in range(group_cm):
+                if i in full_pop_dist and j in full_pop_dist:
+                    cm[i][j] = (1 / full_pop_dist[i]) * ((cm_temp[i][j] * full_pop_dist[i]) + (cm_temp[j][i] * full_pop_dist[j])) / 2
+                    cm_c[i][j] = (1 / full_pop_dist[i]) * ((cm_c_temp[i][j] * full_pop_dist[i]) + (cm_c_temp[j][i] * full_pop_dist[j])) / 2
+                    cm_h[i][j] = (1 / full_pop_dist[i]) * ((cm_h_temp[i][j] * full_pop_dist[i]) + (cm_h_temp[j][i] * full_pop_dist[j])) / 2
+                    cm_w[i][j] = (1 / full_pop_dist[i]) * ((cm_w_temp[i][j] * full_pop_dist[i]) + (cm_w_temp[j][i] * full_pop_dist[j])) / 2
+                    cm_s[i][j] = (1 / full_pop_dist[i]) * ((cm_s_temp[i][j] * full_pop_dist[i]) + (cm_s_temp[j][i] * full_pop_dist[j])) / 2
 
+    # Adjust contact matrox for per-capita contact rates
     if per_capita:
-        for j in range(group_cm):
-            for i in range(group_cm):
-                if j in full_pop_dist and i in full_pop_dist:
-                    cm[i][j] = cm[i][j] / full_pop_dist[i]
-                    cm_c[i][j] = cm_c[i][j] / full_pop_dist[i]
-                    cm_h[i][j] = cm_h[i][j] / full_pop_dist[i]
-                    cm_w[i][j] = cm_w[i][j] / full_pop_dist[i]
-                    cm_s[i][j] = cm_s[i][j] / full_pop_dist[i]
-
-    if target_groups:
-        for j in range(group_cm):
-            if j in sample_pop_dist:
-                if j in target_groups:
-                    cm_binary[1][1][0] += sample_pop_dist[j]
-                else:
-                    cm_binary[1][0][0] += sample_pop_dist[j]
-            if j in full_pop_dist:
-                if j in target_groups:
-                    cm_binary[1][1][1] += full_pop_dist[j]
-                else:
-                    cm_binary[1][0][1] += full_pop_dist[j]
+        for i in range(group_cm):
+            for j in range(group_cm):
+                if i in full_pop_dist and j in full_pop_dist:
+                    cm[i][j] = cm[i][j] / full_pop_dist[j]
+                    cm_c[i][j] = cm_c[i][j] / full_pop_dist[j]
+                    cm_h[i][j] = cm_h[i][j] / full_pop_dist[j]
+                    cm_w[i][j] = cm_w[i][j] / full_pop_dist[j]
+                    cm_s[i][j] = cm_s[i][j] / full_pop_dist[j]
             
 
-    return [cm, cm_c, cm_h, cm_w, cm_s, cm_binary]
-
-
+    return [cm, cm_c, cm_h, cm_w, cm_s]
 
 if __name__ == '__main__':
     
-    input_network = 'NM_network_v3'
-    date = '2025-06-25'
-
-    experiment = 'exp2b'
-
+    # Load input contact network; assign to G
+    input_network =  'NM_network_v3'
     G = pickle.load(open('../Data/Contact network/' + input_network + '.pickle', 'rb'))
 
+    # Define date of survey simulation (i.e. computer time date when survey_simulator.py was run)
+    date = '2025-09-18'
+
+    # Define experiment name
+    experiment = 'supp_exp_context'
+
+    # Define context labels for contact matrices
     cm_out_labels = ['Overall','Community','Household','Workplace','School']
+
+    # Define attributes for stratifying population (age, ethnicity, race, SES/income)
     attr = ['a','e','r','s']
+
+    # Define matrix indices of subpopulations of interest
     target_groups_attr = {'a':[13,14,15,16,17],'e':[1],'r':[1,2,3,4,5,6],'s':[0],
                           'ae':[h for h in range(36) if h % 2 == 1],
                           'ar':[h for h in range(126) if h % 7 != 0],
                           'as':[h for h in range(54) if h % 3 == 0]}
 
+
     # FULL POPULATION GROUNDTRUTH MATRICES
+    if experiment == 'groundtruth':
+        for a in attr:
+            cm_out = build_contact_matrix(G = G, attr = a, contact_survey=None, 
+                                                        groundtruth=True, symmetry=False, per_capita=False)
+        
+            for i in range(len(cm_out)):
+                np.save('../Data/Contact matrices/' + input_network + '__full_pop__'  + a + '__' + cm_out_labels[i] + '.npy',arr=cm_out[i])
 
-    # for a in attr:
-    #     cm_out = build_contact_matrix(G = G, attr = a, contact_survey=None, 
-    #                                                   groundtruth=True, symmetry=True, per_capita=True)
-    
-    #     for i in range(len(cm_out)-1):
-    #         # np.save('../Data/Contact matrices/' + input_network + '__full_pop__'  + a + '__' + cm_out_labels[i] + '.npy',arr=cm_out[i])
-    #         np.save('../Data/Contact matrices/' + input_network + '__full_pop__processed__'  + a + '__' + cm_out_labels[i] + '.npy',arr=cm_out[i])
+            cm_out = build_contact_matrix(G = G, attr = a, contact_survey=None, 
+                                                        groundtruth=True, symmetry=True, per_capita=True)
+        
+            for i in range(len(cm_out)):
+                np.save('../Data/Contact matrices/' + input_network + '__full_pop__processed__'  + a + '__' + cm_out_labels[i] + '.npy',arr=cm_out[i])
 
-
-    # EXPERIMENT 1: Age and Ethnicity
+    # EXPERIMENT 1: Age
     if experiment == 'exp1':
-        attr = ['r','ar']#['a','e','ae']
+        attr = ['a']
         input_survey = glob.glob('../Data/Contact survey data/' + input_network + '__exp1__survey*' + date + '.pickle')
         input_survey = [h.split('__exp1__')[1][:-7] for h in input_survey]
         
@@ -492,7 +497,42 @@ if __name__ == '__main__':
                 np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__biased__processed__' + a + '__Binary.npy',arr=cm_out[5])
 
     # EXPERIMENT 2: Race
-    if experiment == 'exp2b':
+    if experiment == 'exp2':
+        attr = ['r','ar']
+        input_survey = glob.glob('../Data/Contact survey data/'+ input_network + '__' + experiment + '__survey_tract*' + date + '.pickle')
+        input_survey = [h.split('__' + experiment + '__')[1][:-7] for h in input_survey]
+        
+        for a in attr:
+            for survey_in in input_survey:
+                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                            groundtruth=True, symmetry=False, per_capita=False, target_groups=target_groups_attr[a])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[1] + '.npy',arr=cm_out[1])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__Binary.npy',arr=cm_out[5])
+
+                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                            groundtruth=True, symmetry=True, per_capita=True, target_groups=target_groups_attr[a])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[1] + '.npy',arr=cm_out[1])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__Binary.npy',arr=cm_out[5])
+
+                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                            groundtruth=False, symmetry=False, per_capita=False, target_groups=target_groups_attr[a])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[1] + '.npy',arr=cm_out[1])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__Binary.npy',arr=cm_out[5])
+
+                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                            groundtruth=False, symmetry=True, per_capita=True, target_groups=target_groups_attr[a])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[1] + '.npy',arr=cm_out[1])
+                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__Binary.npy',arr=cm_out[5])
+
+    
+     # EXPERIMENT SAMPLE SIZE: Age, race
+
+    # SUPPLEMENTRAL EXPERIMENTS
+    if experiment == 'supp_exp_context' or experiment == 'supp_wg':
         attr = ['r','ar']
         input_survey = glob.glob('../Data/Contact survey data/'+ input_network + '__' + experiment + '__*' + date + '.pickle')
         input_survey = [h.split('__' + experiment + '__')[1][:-7] for h in input_survey]
@@ -501,53 +541,20 @@ if __name__ == '__main__':
             for survey_in in input_survey:
 
                 cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=True, symmetry=False, per_capita=False, target_groups=target_groups_attr[a])
+                                                            groundtruth=True, symmetry=False, per_capita=False, target_groups=None)
                 np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__Binary.npy',arr=cm_out[5])
 
                 cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=True, symmetry=True, per_capita=True, target_groups=target_groups_attr[a])
+                                                            groundtruth=True, symmetry=True, per_capita=True, target_groups=None)
                 np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__Binary.npy',arr=cm_out[5])
-
+                
                 cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=False, symmetry=False, per_capita=False, target_groups=target_groups_attr[a])
+                                                            groundtruth=False, symmetry=False, per_capita=False, target_groups=None)
                 np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__Binary.npy',arr=cm_out[5])
 
                 cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=False, symmetry=True, per_capita=True, target_groups=target_groups_attr[a])
+                                                            groundtruth=False, symmetry=True, per_capita=True, target_groups=None)
                 np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__Binary.npy',arr=cm_out[5])
-
-    # EXPERIMENT 3: Geo race
-    if experiment == 'exp3':
-        attr = ['r','ar']
-        input_survey = glob.glob('../Data/Contact survey data/' + input_network + '__exp3__*' + date + '.pickle')
-        input_survey = [h.split('__exp3__')[1][:-7] for h in input_survey]
-        
-        for a in attr:
-            for survey_in in input_survey:
-
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp3__' + survey_in + '.pickle', 
-                                                            groundtruth=True, symmetry=False, per_capita=False, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__exp3__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__exp3__' + survey_in[7:] + '__gt__raw__' + a + '__Binary.npy',arr=cm_out[5])
-
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp3__' + survey_in + '.pickle', 
-                                                            groundtruth=True, symmetry=True, per_capita=True, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__exp3__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__exp3__' + survey_in[7:] + '__gt__processed__' + a + '__Binary.npy',arr=cm_out[5])
-
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp3__' + survey_in + '.pickle', 
-                                                            groundtruth=False, symmetry=False, per_capita=False, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__exp3__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__exp3__' + survey_in[7:] + '__biased__raw__' + a + '__Binary.npy',arr=cm_out[5])
-
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp3__' + survey_in + '.pickle', 
-                                                            groundtruth=False, symmetry=True, per_capita=True, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__exp3__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__exp3__' + survey_in[7:] + '__biased__processed__' + a + '__Binary.npy',arr=cm_out[5])
 
     
     
