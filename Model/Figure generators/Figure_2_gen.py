@@ -1,3 +1,5 @@
+# Script for generating Figure 2 plot
+
 from matplotlib.colors import LogNorm
 from matplotlib.ticker import FixedFormatter, MultipleLocator
 from matplotlib.transforms import ScaledTranslation
@@ -7,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 input_network = 'NM_network_v3'
-context = 'Community'
+context = 'Overall' # Transmission setting
 processed = False
 
 fig, ax = plt.subplots(nrows=2, ncols=2)#, figsize=(8.3,9))
@@ -86,7 +88,7 @@ ax[0,1].text(
             ax[0,1].transAxes + ScaledTranslation(-20/72, +7/72, fig.dpi_scale_trans)),
          va='bottom', fontfamily='sans-serif', fontweight='bold', size=12)
 
-#Panel D - social class
+#Panel D - income
 attr = 's'
 if not processed:
     cm_ses = np.load('../Data/Contact matrices/' + input_network + '__full_pop__'  + attr + '__' + context + '.npy')
