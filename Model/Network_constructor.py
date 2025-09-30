@@ -16,13 +16,16 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
     agents = pd.read_csv('../Data/Synthetic population/urbanpop_network_nm_001_processed.csv')
     agents = agents.sort_values(by=['nighttime_blockgroup','household_id'])
 
+    attr_assort = 'race'
+    rho = 1
+
     N = len(agents)
 
     if not filename:
         G = nx.Graph()
 
         for row in agents.iterrows():
-            G.add_node(row[0], day_tract=row[1]['daytime_blockgroup'], night_tract=row[1]['nighttime_blockgroup'], age = row[1]['age'], ethnicity = row[1]['ethnicity'], race = row[1]['race'], ses=row[1]['social_class'])
+            G.add_node(row[0], day_tract=row[1]['daytime_blockgroup'], night_tract=row[1]['nighttime_blockgroup'], age = row[1]['age'], ethnicity = row[1]['ethnicity'], race = row[1]['race'], income=row[1]['income'])
 
     else:
         G = pickle.load(open(filename, 'rb'))
@@ -35,6 +38,7 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
     prop_c_day_contact = 0.21
     prop_c_night_contact = 0.21
     
+    # Total possible household contacts
     total_possible_hh_contacts = 2347917
 
     # Overall daily contact rate 
@@ -47,7 +51,7 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
     c_c_day = prop_c_day_contact * c_total 
     c_c_night = prop_c_night_contact * c_total 
 
-    # Nighttime community
+    # Nighttime contacts
     if 'H' == context or 'C_N' == context:
         comms_night, comms_night_index, community_sizes_night = np.unique(agents['nighttime_blockgroup'], return_counts=True, return_index=True)
         comms_night = comms_night[np.argsort(comms_night_index)]
@@ -58,6 +62,7 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
         hh_lookup = dict(zip(agents.index,agents['household_id']))
         wg_lookup = dict(zip(agents.index,agents['work_group']))
         sg_lookup = dict(zip(agents.index,agents['school_group']))
+        attr_lookup = dict(zip(agents.index,agents[attr_assort]))
 
         if 'H' == context:
             p_home = np.empty(p_size_night, dtype=np.uint8)
@@ -82,6 +87,7 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
 
         community_sizes_night = [h for h in community_sizes_night if h > 1]
 
+        # Household contacts
         if 'H' == context:
             i = 0
             temp_hh = hh_lookup[pop_night[0][0]]
@@ -124,9 +130,10 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
 
             print(datetime.datetime.now(), 'Household contacts finished sampling')
 
+        # Nighttime community contacts
         if 'C_N' == context:
             i = 0
-            temp_hh = hh_lookup[pop_night[0][0]]
+            temp_attr = attr_lookup[pop_night[0][0]]
             comm_tracker = 0
             agent_tracker = 0
             hh_size = 0
@@ -170,13 +177,10 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
 
             print(datetime.datetime.now(), 'Nighttime community contacts finished sampling')
 
-    # Daytime community
+    # Daytime contacts
     if 'W' == context or 'S' == context or 'C_D' == context:
-        attr_assort = 'race'
-        rho = 1
         agents = agents.sort_values(by=['daytime_blockgroup','school_group', 'work_group'])
 
-        # Daytime community
         comms_day, comms_day_index, community_sizes_day = np.unique(agents['daytime_blockgroup'], return_counts=True, return_index=True)
         comms_day = comms_day[np.argsort(comms_day_index)]
         community_sizes_day = community_sizes_day[np.argsort(comms_day_index)]
@@ -211,6 +215,7 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
 
         community_sizes_day = [h for h in community_sizes_day if h > 1]
 
+        # Workplace contacts
         if 'W' == context:
             i = 0
             comm_tracker = 0
@@ -264,6 +269,7 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
             gc.collect()
             print(datetime.datetime.now(), 'Workplace contacts finished sampling')
 
+        # School contacts
         if context == 'S':
             i = 0
             comm_tracker = 0
@@ -317,6 +323,7 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
             gc.collect()
             print(datetime.datetime.now(), 'School contacts finished sampling')
 
+        # Daytime community contacts
         if 'C_D' == context:
             i = 0
             comm_tracker = 0
@@ -372,20 +379,28 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
 
 
 
-    # Output graph
-    pickle.dump(G, open('../Data/Contact network/NM_network_v3.pickle', 'wb'))
-    return G
+    # Output graph to .pickle file
+    pickle.dump(G, open('../Data/Contact network/NM_network.pickle', 'wb'))
+    return
 
 if __name__ == '__main__':
 
-    # build_graph(context='H', filename=None, pop_day_file=None, pop_night_file=None)
-    build_graph(context='H', filename=None, pop_day_file=None, pop_night_file='../Data/Synthetic population/pop_night.npy')
+    # Build contact network incrementally by transmission setting ('context')
+    # Files describing possible daytime/nighttime contact pairs (pop_day/pop_night) outputted to speed-up any further calls to build_graph
 
-    # build_graph(context='W', filename='../Data/Contact network/NM_network_v3.pickle', pop_day_file=None, pop_night_file=None)
-    build_graph(context='W', filename='../Data/Contact network/NM_network_v3.pickle', pop_day_file='../Data/Synthetic population/pop_day.npy', pop_night_file=None)
+    # Add Household contacts (edges) - optional line below for when nighttime contact file ('pop_night.npy') available 
+    build_graph(context='H', filename=None, pop_day_file=None, pop_night_file=None)
+    # build_graph(context='H', filename=None, pop_day_file=None, pop_night_file='../Data/Synthetic population/pop_night.npy')
 
-    build_graph(context='S', filename='../Data/Contact network/NM_network_v3.pickle', pop_day_file='../Data/Synthetic population/pop_day.npy', pop_night_file=None)
+    # Add Workplace contacts (edges) - optional line below for when daytime contact file ('pop_day.npy') available 
+    build_graph(context='W', filename='../Data/Contact network/NM_network.pickle', pop_day_file=None, pop_night_file=None)
+    # build_graph(context='W', filename='../Data/Contact network/NM_network.pickle', pop_day_file='../Data/Synthetic population/pop_day.npy', pop_night_file=None)
 
-    build_graph(context='C_N', filename='../Data/Contact network/NM_network_v3.pickle', pop_day_file=None, pop_night_file='../Data/Synthetic population/pop_night.npy')
+    # Add School contacts (edges)
+    build_graph(context='S', filename='../Data/Contact network/NM_network.pickle', pop_day_file='../Data/Synthetic population/pop_day.npy', pop_night_file=None)
 
-    build_graph(context='C_D', filename='../Data/Contact network/NM_network_v3.pickle', pop_day_file='../Data/Synthetic population/pop_day.npy', pop_night_file=None)
+    # Add Nighttime Community contacts (edges)
+    build_graph(context='C_N', filename='../Data/Contact network/NM_network.pickle', pop_day_file=None, pop_night_file='../Data/Synthetic population/pop_night.npy')
+
+    # Add Daytime Community contacts (edges)
+    build_graph(context='C_D', filename='../Data/Contact network/NM_network.pickle', pop_day_file='../Data/Synthetic population/pop_day.npy', pop_night_file=None)
