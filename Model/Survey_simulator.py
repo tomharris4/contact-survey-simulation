@@ -359,10 +359,8 @@ def simulate_survey(G, edge_context_dic, age_attr, race_attr, eth_attr, income_a
     
 if __name__ == '__main__':
 
-    rng = np.random.RandomState(10)
-
     # Load input contact network; assign to G
-    input_network = 'NM_network_v3'
+    input_network = 'NM_network'
     G = pickle.load(open('../Data/Contact network/' + input_network + '.pickle', 'rb'))
 
     # Get transmission setting ('context') of all contacts in G
@@ -375,134 +373,137 @@ if __name__ == '__main__':
     age_dist_dict = get_age_distribution(G)
 
     # Define experimental conditions for contact survey simulation
-    experiment = 'supp_exp_context'
+    experiments = ['exp1','exp2','supp_wg','supp_exp_context']
 
     print(datetime.datetime.now(), 'Initialisation complete')
 
-    # Experiment 1 - age-related perception bias
-    if experiment == 'exp1':
-        h = 10 
-        b_age = np.linspace(0, 1.5*2.564, 7)
-        b_age = np.append(b_age,1.5*2.564)
-        sigma_map = {'H':0,'W':0.44,'S':0.25,'C_N':0.39,'C_D':0.39}
-        anchors_race = np.linspace(0.1*2.564,0.8*2.564,8)
-        anchors_eth = np.linspace(0.1*2.564,0.8*2.564,8)
-        anchor_income = np.linspace(0.1*2.564,0.8*2.564,8)
-        l = 1
-        geo_level_weighting = 'tract'
-        pop_prop_race = get_race_lookup(geo_level_weighting,G)
-        pop_prop_eth = get_eth_lookup(geo_level_weighting,G)
-        pop_prop_income = get_income_lookup(geo_level_weighting,G)
+    for experiment in experiments:
+        rng = np.random.RandomState(10)
 
-        for j in range(8):
-            for i in range(10):
-                g_out = simulate_survey(G,sample_size=10000, age_dist=age_dist_dict, edge_context_dic = edge_context_dic,
-                                age_attr={'sigma_map':sigma_map, 'h':h, 'b_age':b_age[j], 'bias_mean':bias_mean},
-                                race_attr={'sigma_map':sigma_map,'anchors_race':[0,anchors_race[j]], 'pop_race':geo_level_weighting, 'pop_prop_race': pop_prop_race, 'l':[l,l]},
-                                eth_attr={'sigma_map':sigma_map,'anchors_eth':[anchors_eth[j],0], 'pop_eth':geo_level_weighting, 'pop_prop_eth': pop_prop_eth},
-                                income_attr={'sigma_map':sigma_map,'anchor_income':anchor_income[j], 'pop_income':geo_level_weighting, 'pop_prop_income':pop_prop_income},
-                                f = [0,0], g = [0,0])
-                
-                pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(j) + '_' +
-                                        str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
+        # Experiment 1 - age-related perception bias
+        if experiment == 'exp1':
+            h = 10 
+            b_age = np.linspace(0, 1.5*2.564, 7)
+            b_age = np.append(b_age,1.5*2.564)
+            sigma_map = {'H':0,'W':0.44,'S':0.25,'C_N':0.39,'C_D':0.39}
+            anchors_race = np.linspace(0.1*2.564,0.8*2.564,8)
+            anchors_eth = np.linspace(0.1*2.564,0.8*2.564,8)
+            anchor_income = np.linspace(0.1*2.564,0.8*2.564,8)
+            l = 1
+            geo_level_weighting = 'tract'
+            pop_prop_race = get_race_lookup(geo_level_weighting,G)
+            pop_prop_eth = get_eth_lookup(geo_level_weighting,G)
+            pop_prop_income = get_income_lookup(geo_level_weighting,G)
 
-                if i % 5 == 0:
-                    print(datetime.datetime.now(), 'Survey complete: ', i)
-
-    # Experiment 2 - race-related perception bias
-    if experiment == 'exp2':
-        h = 10
-        b_age = 0
-        sigma_map = {'H':0,'W':0.44,'S':0.25,'C_N':0.39,'C_D':0.39}
-        anchors_race = np.linspace(0*2.564,0.8*2.564,9)
-        anchors_eth = np.linspace(0*2.564,0.8*2.564,9)
-        anchor_income = np.linspace(0*2.564,0.8*2.564,9)
-        l = 1
-        geo_level_weighting = ['tract']#['state','tract','random','majority']
-
-        for j in range(2):
-            pop_prop_race = get_race_lookup(geo_level_weighting[j],G)
-            pop_prop_eth = get_eth_lookup(geo_level_weighting[j],G)
-            pop_prop_income = get_income_lookup(geo_level_weighting[j],G)
-            for k in range(9):
+            for j in range(7):
                 for i in range(10):
-                    g_out = simulate_survey(G,sample_size=10000, age_dist=age_dist_dict, edge_context_dic = edge_context_dic,
-                                    age_attr={'sigma_map':sigma_map, 'h':h, 'b_age':b_age, 'bias_mean':bias_mean},
-                                    race_attr={'sigma_map':sigma_map,'anchors_race':[0,anchors_race[k]], 'pop_race':geo_level_weighting[j], 'pop_prop_race': pop_prop_race, 'l':[l,l]},
-                                    eth_attr={'sigma_map':sigma_map,'anchors_eth':[0,anchors_eth[k]], 'pop_eth':geo_level_weighting[j], 'pop_prop_eth': pop_prop_eth},
-                                    income_attr={'sigma_map':sigma_map,'anchor_income':anchor_income[k], 'pop_income':geo_level_weighting[j], 'pop_prop_income':pop_prop_income},
-                                    f = [0,0], g = [0,0])
+                    g_out = simulate_survey(G,sample_size=10000, edge_context_dic = edge_context_dic,
+                                    age_attr={'sigma_map':sigma_map, 'h':h, 'b_age':b_age[j], 'bias_mean':bias_mean},
+                                    race_attr={'sigma_map':sigma_map,'anchors_race':[0,anchors_race[j]], 'pop_race':geo_level_weighting, 'pop_prop_race': pop_prop_race, 'l':[l,l]},
+                                    eth_attr={'sigma_map':sigma_map,'anchors_eth':[anchors_eth[j],0], 'pop_eth':geo_level_weighting, 'pop_prop_eth': pop_prop_eth},
+                                    income_attr={'sigma_map':sigma_map,'anchor_income':anchor_income[j], 'pop_income':geo_level_weighting, 'pop_prop_income':pop_prop_income},
+                                    )
                     
-                    pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(geo_level_weighting[j]) + '_' +
-                                            str(k) + '_' + str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
+                    pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(j) + '_' +
+                                            str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
 
                     if i % 5 == 0:
                         print(datetime.datetime.now(), 'Survey complete: ', i)
 
-    # Supplemetal experiment - race-related perception bias (within-group bias)
-    if experiment == 'supp_wg':
-        h = 10
-        b_age = 2.564
-        sigma_map = {'H':0,'W':0.44,'S':0.25,'C_N':0.39,'C_D':0.39}
-        anchors_race = [0.8*2.564,0.8*2.564]
-        anchors_eth = 0.8*2.564
-        anchor_income = 0.8*2.564
-        l = np.linspace(0,1,5)
-        geo_level_weighting = 'tract'
-        pop_prop_race = get_race_lookup(geo_level_weighting,G)
-        pop_prop_eth = get_eth_lookup(geo_level_weighting,G)
-        pop_prop_income = get_income_lookup(geo_level_weighting,G)
+        # Experiment 2 - race-related perception bias
+        if experiment == 'exp2':
+            h = 10
+            b_age = 0
+            sigma_map = {'H':0,'W':0.44,'S':0.25,'C_N':0.39,'C_D':0.39}
+            anchors_race = np.linspace(0*2.564,0.8*2.564,9)
+            anchors_eth = np.linspace(0*2.564,0.8*2.564,9)
+            anchor_income = np.linspace(0*2.564,0.8*2.564,9)
+            l = 1
+            geo_level_weighting = ['tract']#['state','tract','random','majority']
 
-        for j in range(5):
-            for i in range(10):
-                g_out = simulate_survey(G,sample_size=10000, age_dist=age_dist_dict, edge_context_dic = edge_context_dic,
-                                age_attr={'sigma_map':sigma_map, 'h':h, 'b_age':b_age, 'bias_mean':bias_mean},
-                                race_attr={'sigma_map':sigma_map,'anchors_race':anchors_race, 'pop_race':geo_level_weighting, 'pop_prop_race': pop_prop_race, 'l':[l[j],1]},
-                                eth_attr={'sigma_map':sigma_map,'anchors_eth':[anchors_eth,anchors_eth], 'pop_eth':geo_level_weighting, 'pop_prop_eth': pop_prop_eth},
-                                income_attr={'sigma_map':sigma_map,'anchor_income':anchor_income, 'pop_income':geo_level_weighting, 'pop_prop_income':pop_prop_income},
-                                f = [0,0], g = [0,0])
-                
-                pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(j) + '_' +
-                                        str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
+            for j in range(2):
+                pop_prop_race = get_race_lookup(geo_level_weighting[j],G)
+                pop_prop_eth = get_eth_lookup(geo_level_weighting[j],G)
+                pop_prop_income = get_income_lookup(geo_level_weighting[j],G)
+                for k in range(9):
+                    for i in range(10):
+                        g_out = simulate_survey(G,sample_size=10000, edge_context_dic = edge_context_dic,
+                                        age_attr={'sigma_map':sigma_map, 'h':h, 'b_age':b_age, 'bias_mean':bias_mean},
+                                        race_attr={'sigma_map':sigma_map,'anchors_race':[0,anchors_race[k]], 'pop_race':geo_level_weighting[j], 'pop_prop_race': pop_prop_race, 'l':[l,l]},
+                                        eth_attr={'sigma_map':sigma_map,'anchors_eth':[0,anchors_eth[k]], 'pop_eth':geo_level_weighting[j], 'pop_prop_eth': pop_prop_eth},
+                                        income_attr={'sigma_map':sigma_map,'anchor_income':anchor_income[k], 'pop_income':geo_level_weighting[j], 'pop_prop_income':pop_prop_income},
+                                        )
+                        
+                        pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(geo_level_weighting[j]) + '_' +
+                                                str(k) + '_' + str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
 
-                if i % 5 == 0:
-                    print(datetime.datetime.now(), 'Survey complete: ', i)
+                        if i % 5 == 0:
+                            print(datetime.datetime.now(), 'Survey complete: ', i)
 
-    # Supplemetal experiment - transmission setting sensitivity analysis
-    if experiment == 'supp_exp_context':
-        h = 10
-        b_age = 2.564
-        anchors_race = 0.7*2.564
-        anchors_eth = 0.7*2.564
-        anchor_income = 0.7*2.564
-        l = 1
-        geo_level_weighting = 'tract'
-        pop_prop_race = get_race_lookup(geo_level_weighting,G)
-        pop_prop_eth = get_eth_lookup(geo_level_weighting,G)
-        pop_prop_income = get_income_lookup(geo_level_weighting,G)
+        # Supplemetal experiment - race-related perception bias (within-group bias)
+        if experiment == 'supp_wg':
+            h = 10
+            b_age = 2.564
+            sigma_map = {'H':0,'W':0.44,'S':0.25,'C_N':0.39,'C_D':0.39}
+            anchors_race = [0.8*2.564,0.8*2.564]
+            anchors_eth = 0.8*2.564
+            anchor_income = 0.8*2.564
+            l = np.linspace(0,1,5)
+            geo_level_weighting = 'tract'
+            pop_prop_race = get_race_lookup(geo_level_weighting,G)
+            pop_prop_eth = get_eth_lookup(geo_level_weighting,G)
+            pop_prop_income = get_income_lookup(geo_level_weighting,G)
 
-        sigma_map = [
-            {'H':0,'W':0,'S':0,'C_N':0,'C_D':0},
-            {'H':0,'W':0,'S':0,'C_N':0.39,'C_D':0.39},
-            {'H':0,'W':0,'S':0.25,'C_N':0,'C_D':0},
-            {'H':0,'W':0.44,'S':0,'C_N':0,'C_D':0},
-            {'H':0,'W':0,'S':0.25,'C_N':0.39,'C_D':0.39},
-            {'H':0,'W':0.44,'S':0,'C_N':0.39,'C_D':0.39},
-            {'H':0,'W':0.44,'S':0.25,'C_N':0,'C_D':0},
-            {'H':0,'W':0.44,'S':0.25,'C_N':0.39,'C_D':0.39}
-            ]
+            for j in range(5):
+                for i in range(10):
+                    g_out = simulate_survey(G,sample_size=10000, edge_context_dic = edge_context_dic,
+                                    age_attr={'sigma_map':sigma_map, 'h':h, 'b_age':b_age, 'bias_mean':bias_mean},
+                                    race_attr={'sigma_map':sigma_map,'anchors_race':anchors_race, 'pop_race':geo_level_weighting, 'pop_prop_race': pop_prop_race, 'l':[l[j],1]},
+                                    eth_attr={'sigma_map':sigma_map,'anchors_eth':[anchors_eth,anchors_eth], 'pop_eth':geo_level_weighting, 'pop_prop_eth': pop_prop_eth},
+                                    income_attr={'sigma_map':sigma_map,'anchor_income':anchor_income, 'pop_income':geo_level_weighting, 'pop_prop_income':pop_prop_income},
+                                    )
+                    
+                    pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(j) + '_' +
+                                            str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
 
-        for k in range(8):
-            for i in range(10):
-                g_out = simulate_survey(G,sample_size=10000, age_dist=age_dist_dict, edge_context_dic = edge_context_dic,
-                                age_attr={'sigma_map':sigma_map[k], 'h':h, 'b_age':b_age, 'bias_mean':bias_mean},
-                                race_attr={'sigma_map':sigma_map[k],'anchors_race':[0,anchors_race], 'pop_race':geo_level_weighting, 'pop_prop_race': pop_prop_race, 'l':[l,1]},
-                                eth_attr={'sigma_map':sigma_map[k],'anchors_eth':[0,anchors_eth], 'pop_eth':geo_level_weighting, 'pop_prop_eth': pop_prop_eth},
-                                income_attr={'sigma_map':sigma_map[k],'anchor_income':anchor_income, 'pop_income':geo_level_weighting, 'pop_prop_income':pop_prop_income},
-                                f = [0,0], g = [0,0])
-                
-                pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(k) + '_' +
-                                        str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
+                    if i % 5 == 0:
+                        print(datetime.datetime.now(), 'Survey complete: ', i)
 
-                if i % 5 == 0:
-                    print(datetime.datetime.now(), 'Survey complete: ', i)
+        # Supplemetal experiment - transmission setting sensitivity analysis
+        if experiment == 'supp_exp_context':
+            h = 10
+            b_age = 2.564
+            anchors_race = 0.7*2.564
+            anchors_eth = 0.7*2.564
+            anchor_income = 0.7*2.564
+            l = 1
+            geo_level_weighting = 'tract'
+            pop_prop_race = get_race_lookup(geo_level_weighting,G)
+            pop_prop_eth = get_eth_lookup(geo_level_weighting,G)
+            pop_prop_income = get_income_lookup(geo_level_weighting,G)
+
+            sigma_map = [
+                {'H':0,'W':0,'S':0,'C_N':0,'C_D':0},
+                {'H':0,'W':0,'S':0,'C_N':0.39,'C_D':0.39},
+                {'H':0,'W':0,'S':0.25,'C_N':0,'C_D':0},
+                {'H':0,'W':0.44,'S':0,'C_N':0,'C_D':0},
+                {'H':0,'W':0,'S':0.25,'C_N':0.39,'C_D':0.39},
+                {'H':0,'W':0.44,'S':0,'C_N':0.39,'C_D':0.39},
+                {'H':0,'W':0.44,'S':0.25,'C_N':0,'C_D':0},
+                {'H':0,'W':0.44,'S':0.25,'C_N':0.39,'C_D':0.39}
+                ]
+
+            for k in range(8):
+                for i in range(10):
+                    g_out = simulate_survey(G,sample_size=10000, edge_context_dic = edge_context_dic,
+                                    age_attr={'sigma_map':sigma_map[k], 'h':h, 'b_age':b_age, 'bias_mean':bias_mean},
+                                    race_attr={'sigma_map':sigma_map[k],'anchors_race':[0,anchors_race], 'pop_race':geo_level_weighting, 'pop_prop_race': pop_prop_race, 'l':[l,1]},
+                                    eth_attr={'sigma_map':sigma_map[k],'anchors_eth':[0,anchors_eth], 'pop_eth':geo_level_weighting, 'pop_prop_eth': pop_prop_eth},
+                                    income_attr={'sigma_map':sigma_map[k],'anchor_income':anchor_income, 'pop_income':geo_level_weighting, 'pop_prop_income':pop_prop_income},
+                                    )
+                    
+                    pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(k) + '_' +
+                                            str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
+
+                    if i % 5 == 0:
+                        print(datetime.datetime.now(), 'Survey complete: ', i)
