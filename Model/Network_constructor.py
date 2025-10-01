@@ -133,7 +133,7 @@ def build_graph(context='H', filename=None, pop_night_file=None, pop_day_file=No
         # Nighttime community contacts
         if 'C_N' == context:
             i = 0
-            temp_attr = attr_lookup[pop_night[0][0]]
+            temp_hh = hh_lookup[pop_night[0][0]]
             comm_tracker = 0
             agent_tracker = 0
             hh_size = 0
