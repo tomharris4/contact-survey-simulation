@@ -1,4 +1,4 @@
-# Simulating the impact of recall bias on detailed sociodemographic surveys of social contact behaviour
+# Simulating the impact of perception bias on detailed sociodemographic surveys of social contact behaviour
 This data and code accompanies the journal article, 'Simulating the impact of recall bias on detailed sociodemographic surveys of social contact behaviour' by Harris et al. (2025)
 ## File hierarchy 
 - Model:
