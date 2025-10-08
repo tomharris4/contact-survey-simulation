@@ -1,5 +1,5 @@
 # Simulating the impact of perception bias on detailed sociodemographic surveys of social contact behaviour
-This data and code accompanies the journal article, 'Simulating the impact of recall bias on detailed sociodemographic surveys of social contact behaviour' by Harris et al. (2025)
+This data and code accompanies the journal article, 'Simulating the impact of perception bias on detailed sociodemographic surveys of social contact behaviour' by Harris et al. (2025)
 ## File hierarchy 
 - Model:
     - Population_preprocessing.py - script for pre-processing urbanpop synthetic population data - assigns contact groups to individuals (schoolgroups & workgroups), determines agent income stratum and re-assigns individuals with daytime locations outside of New Mexico
