@@ -7,32 +7,26 @@ import seaborn as sb
 import numpy as np
 import matplotlib.pyplot as plt
 
-experiment = 'exp3'
-pathogen = 'X'
+experiment = 'supp_eth'
+pathogen = 'C_2_9'
 metric =  'ar'
 
-if pathogen == 'I':
-    days = 200
-elif pathogen == 'X':
-    days = 250
-else:
-    days = 100
+days = 100
 
-input_network = 'NM_network_v3'
-date = '2025-07-29'
+input_network = 'NM_network'
 attr = 'e'
 
 fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(9,2.5))
 
 #Panel A - ethnicity contact matrices
-input_params = 'tract_6'
+input_params = 'tract_7'
 eth_dist_labels = ['.', 'Non-Hispanic','Hispanic']
 
-cm_eth_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__biased__raw__' + attr + '__Overall.npy')
-cm_eth_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__gt__raw__' + attr + '__Overall.npy')
+cm_eth_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__raw__' + attr + '__Overall.npy')
+cm_eth_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__raw__' + attr + '__Overall.npy')
 cm_eth = cm_eth_biased - cm_eth_sampled
 diff_max = max([h for j in range(len(cm_eth)) for h in cm_eth[j]])
-sb.heatmap(cm_eth, ax=ax[0], cmap="RdBu", center = 0, vmin = -1 * diff_max,  vmax = diff_max, cbar_kws={'label': 'Mean # unique contacts \n per day'})
+sb.heatmap(np.transpose(cm_eth), ax=ax[0], cmap="RdBu", center = 0, vmin = -1 * diff_max,  vmax = diff_max, cbar_kws={'label': 'Mean # unique contacts \n per day'})
 
 ax[0].invert_yaxis()
 
@@ -51,15 +45,15 @@ ax[0].text(
 
 #Panel B - Hispanic SIR
 attr = 'ae'
-input_params = 'tract_6'
+input_params = 'tract_7'
 target_groups = 'Hispanic'
 
 if metric == 'ar':
-    I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_*_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
-    I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_*_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+    I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+    I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
 elif metric == 'prev':
-    I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_*_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
-    I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_*_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+    I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+    I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
 t = np.linspace(0, days, days)
 
 
@@ -67,11 +61,11 @@ ax[1].plot(t, I_biased[0:days], 'b', alpha=0.5, lw=1.5, label='Biased')
 ax[1].plot(t, I_groundtruth[0:days], 'r', alpha=0.5, lw=1.5, label='True')
 for i in range(10):
     if metric == 'ar':
-        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_' + str(i) + '_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
-        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_' + str(i) + '_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_' + str(i) + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_' + str(i) + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
     elif metric == 'prev':
-        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_' + str(i) + '_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
-        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_' + str(i) + '_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_' + str(i) + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups + '_' + str(i) + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
     ax[1].plot(t, I_biased[0:days], 'b', alpha=0.2, lw=0.5)
     ax[1].plot(t, I_groundtruth[0:days], 'r', alpha=0.2, lw=0.5)
 ax[1].set_xlabel('Time (days)')
@@ -85,7 +79,7 @@ ax[1].xaxis.set_tick_params(length=0)
 legend = ax[1].legend(fontsize=8)
 for spine in ('top', 'right', 'bottom', 'left'):
     ax[1].spines[spine].set_visible(False)
-ax[1].set(title=target_groups)
+ax[1].set(title='Hispanic pop.')
 ax[1].grid()
 ax[1].ticklabel_format(style='sci', axis='y')
 
@@ -104,11 +98,11 @@ ar_diff_hispanic = []
 target_groups_input = 'Hispanic'
 for input_params in input_params_all:
     if metric == 'ar':
-        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
-        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
     elif metric == 'prev':
-        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
-        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
     ar_diff_hispanic.append( max(I_biased) - max(I_groundtruth))
 
 
@@ -118,17 +112,17 @@ ar_diff_non_hispanic = []
 target_groups_input = 'non-Hispanic'
 for input_params in input_params_all:
     if metric == 'ar':
-        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
-        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
     elif metric == 'prev':
-        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
-        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
     ar_diff_non_hispanic.append(max(I_biased) - max(I_groundtruth))
 
 
 ax[2].plot(r_1, ar_diff_non_hispanic, alpha=0.5, lw=1.5, label='non-Hispanic')
 ax[2].plot(r_1, ar_diff_hispanic, alpha=0.5, lw=1.5, label='Hispanic')
-ax[2].set_xlabel('Bias magnitude ($r_{H}$)')
+ax[2].set_xlabel('Bias magnitude ($e_{H}$)')
 if metric == 'ar':
     ax[2].set_ylabel('$\Delta$[Attack Rate]')
 elif metric == 'prev':
