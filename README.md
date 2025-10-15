@@ -18,7 +18,7 @@ This data and code accompanies the journal article, 'Simulating the impact of pe
         - Race_contact_comparison.py - script for comparing racial bias results to experimental estimates (see Supplementary Material)
         - Within_group_analysis.py - script for analysing alternative model of racial bias with within-group bias (see Supplementary Material)
 - Data:
-    - Synthetic population - folder containing synthetic population data
+    - Synthetic population
     - Contact network - folder containing contact networks stored in .pickle files
     - Contact survey data - folder containing contact surveys stored in .pickle files
     - Contact matrices - folder containing contact matrices derived from contact surveys or whole contact networks stored in .npy files & .pdf visualisations
@@ -34,8 +34,8 @@ This data and code accompanies the journal article, 'Simulating the impact of pe
 The main workflow for reproducing main text figures:
 1.  Run Population_preprocessing.py to assign contact groups and income stratum to individuals.
 2.  Run Network_constructor.py to construct contact network from processed synthetic population.
-3.  Run Survey_simulator.py to simulate contact surveys on constructed contact network. Define contact network file name.
-4.  Run Matrix_constructor.py to construct contact matrices from simulated contact surveys or full contact networks. Define contact network file name, experiment name, and date of survey simulation. 
-5.  Run Matrix_analyser.py to compute average matrices over simulated set. Define contact network file name, experiment name, and date of survey simulation. 
-6.  Run SIR_simulator.py to run SIR model for given contact matrix under different disease spread assumptions. Define contact network file name, experiment name, date of survey simulation, age-specific susceptibility setting (COVID-19 or uniform), and target reproduction number.
-7.  Run figure generator files (Figure_2_gen.py, Figure_3_gen.py, Figure_4_gen.py). Define date of survey simulation.
+3.  Run Survey_simulator.py to simulate contact surveys on constructed contact network.
+4.  Run Matrix_constructor.py to construct contact matrices from simulated contact surveys or full contact networks.
+5.  Run Matrix_analyser.py to compute average matrices over simulated set. 
+6.  Run SIR_simulator.py to execute SIR model for given contact matrix under different disease spread assumptions.
+7.  Run figure generator files (Figure_2_gen.py, Figure_3_gen.py, Figure_4_gen.py).
