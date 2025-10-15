@@ -25,7 +25,7 @@ def sample_age(u,v,context,age_attr):
     shape = mean / scale
     
     # Return rounded sample from distribution
-    return int(np.floor(np.random.gamma(shape=shape,scale=scale)))
+    return int(np.floor(rng.gamma(shape=shape,scale=scale)))
 
 # Sample race of person 'v' given they are a contact of participant 'u', context of contact event, and setting specific recall accuracy scalers
 def sample_race(u,v,context,race_attr):
@@ -373,7 +373,9 @@ if __name__ == '__main__':
     age_dist_dict = get_age_distribution(G)
 
     # Define experimental conditions for contact survey simulation
-    experiments = ['exp1','exp2','supp_wg','supp_exp_context']
+    # Main analysis: Experiment 1 ('exp1'), Experiment 2 ('exp2')
+    # Supplemental analysis: within-group bias ('supp_wg'), transmissing setting SA ('supp_exp_context')
+    experiments = ['exp1', 'exp2']
 
     print(datetime.datetime.now(), 'Initialisation complete')
 
@@ -405,7 +407,7 @@ if __name__ == '__main__':
                                     )
                     
                     pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(j) + '_' +
-                                            str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
+                                            str(i) + '.pickle', 'wb' ))
 
                     if i % 5 == 0:
                         print(datetime.datetime.now(), 'Survey complete: ', i)
@@ -419,9 +421,9 @@ if __name__ == '__main__':
             anchors_eth = np.linspace(0*2.564,0.8*2.564,9)
             anchor_income = np.linspace(0*2.564,0.8*2.564,9)
             l = 1
-            geo_level_weighting = ['tract']#['state','tract','random','majority']
+            geo_level_weighting = ['tract'] # ['state','tract','random','majority']
 
-            for j in range(2):
+            for j in range(len(geo_level_weighting)):
                 pop_prop_race = get_race_lookup(geo_level_weighting[j],G)
                 pop_prop_eth = get_eth_lookup(geo_level_weighting[j],G)
                 pop_prop_income = get_income_lookup(geo_level_weighting[j],G)
@@ -431,11 +433,11 @@ if __name__ == '__main__':
                                         age_attr={'sigma_map':sigma_map, 'h':h, 'b_age':b_age, 'bias_mean':bias_mean},
                                         race_attr={'sigma_map':sigma_map,'anchors_race':[0,anchors_race[k]], 'pop_race':geo_level_weighting[j], 'pop_prop_race': pop_prop_race, 'l':[l,l]},
                                         eth_attr={'sigma_map':sigma_map,'anchors_eth':[0,anchors_eth[k]], 'pop_eth':geo_level_weighting[j], 'pop_prop_eth': pop_prop_eth},
-                                        income_attr={'sigma_map':sigma_map,'anchor_income':anchor_income[k], 'pop_income':geo_level_weighting[j], 'pop_prop_income':pop_prop_income},
+                                        income_attr={'sigma_map':sigma_map,'anchor_income':anchor_income[k], 'pop_income':'random', 'pop_prop_income':pop_prop_income},
                                         )
                         
                         pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(geo_level_weighting[j]) + '_' +
-                                                str(k) + '_' + str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
+                                                str(k) + '_' + str(i) + '.pickle', 'wb' ))
 
                         if i % 5 == 0:
                             print(datetime.datetime.now(), 'Survey complete: ', i)
@@ -464,7 +466,7 @@ if __name__ == '__main__':
                                     )
                     
                     pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(j) + '_' +
-                                            str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
+                                            str(i) + '.pickle', 'wb' ))
 
                     if i % 5 == 0:
                         print(datetime.datetime.now(), 'Survey complete: ', i)
@@ -503,7 +505,7 @@ if __name__ == '__main__':
                                     )
                     
                     pickle.dump(g_out,open('../Data/Contact survey data/' + input_network + '__' + experiment + '__' + 'survey_' + str(k) + '_' +
-                                            str(i) + '_' + str(datetime.date.today()) + '.pickle', 'wb' ))
+                                            str(i) + '.pickle', 'wb' ))
 
                     if i % 5 == 0:
                         print(datetime.datetime.now(), 'Survey complete: ', i)
