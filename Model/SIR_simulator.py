@@ -134,13 +134,12 @@ def run_SIR(c,N,n_g,pop_split,pathogen,target_groups,target_R):
 if __name__ == '__main__':
 
     # Define input contact network
-    input_network = 'NM_network_v3'
+    input_network = 'NM_network'
 
-    # Define date of survey simulation (i.e. computer time date when survey_simulator.py was run)
-    date = '2025-07-04'
-
-    # Define experiment name
-    experiment = 'exp2'
+    # Define experimental conditions for contact survey simulation
+    # Main analysis: Experiment 1 ('exp1'), Experiment 2 - part A ('exp2_A'), Experiment 2 - part B ('exp2_B')
+    # Supplemental analysis: ethnicity bias ('supp_eth'), income bias ('supp_income'), within-group bias ('supp_wg'), transmissing setting SA ('supp_exp_context')
+    experiments = ['exp1','exp2_A','exp2_B']
 
     # Define total size of synthetic population
     N_pop = 2089388
@@ -148,29 +147,8 @@ if __name__ == '__main__':
     # Define total number of groups under different stratification settings
     group_lens = {'a':18, 'r':7, 'e':2, 's':3, 'ae':36, 'ar':126, 'as':54}
 
-    # Define target pathogen
+    # Define target pathogen - COVID-19 (C), uniform age-specific susceptibility (X)
     pathogen = 'C'
-
-    # Define target R0 values 
-    R_0 = [1.2,1.4,1.5,1.6,2,2.4,2.8,2.9,3.2,3.6,4,4.4,4.8,5.2,5.6,6]
-
-
-    # Define parameter range specific to experiment
-    if experiment == 'exp1':       
-        input_params_all = [str(h) for h in range(7)]
-        target_groups_all = ['elderly','children','adults'] #['Low','Medium','High']#['Hispanic','Non-Hispanic']
-    elif experiment == 'exp2':
-        input_params_all = [p + '_' + str(h) for h in range(9) for p in ['tract']]
-        target_groups_all = ['Non-White', 'White']
-    elif experiment == 'supp_wg':
-        input_params_all = [str(h) for h in range(5)]
-        target_groups_all = ['Non-White', 'White']
-    elif experiment == 'supp_exp_context':
-        input_params_all = [str(h) for h in range(8)]
-        target_groups_all = ['Non-White', 'White'] #['elderly']
-
-     # Define attributes for stratifying population (age, ethnicity, race, SES/income)
-    attr_all = ['ar']
 
     # Define whether to analyse processed and/or raw contact matrices
     raw_all = [False]
@@ -178,86 +156,134 @@ if __name__ == '__main__':
     # Define whether to analyse biased and/or true contact matrices
     groundtruth_all = [False,True]
 
-    # Define whether to use average matrices or individual matrices from single survey simulations
-    average_all = [True,False]
+    for experiment in experiments:
 
-    # Iterate through SIR model parameter combinations; run SIR model for each setting and output infectious+recovered curves to file
-    for input_params in input_params_all:
-        for attr in attr_all:
-            for r in R_0:
-                for target_groups_input in target_groups_all:
-                    for average in average_all:
-                        for raw in raw_all:
-                            for groundtruth in groundtruth_all:
-                                if groundtruth:
-                                    search_string = '../Data/Contact matrices/' + input_network +  '__' + experiment + '__' + input_params + '_[0-9]_' + date + '__gt__processed__' + attr + '__Overall.npy'
-                                else:
-                                    search_string = '../Data/Contact matrices/' + input_network +  '__' + experiment + '__' + input_params + '_[0-9]_' + date + '__biased__processed__' + attr + '__Overall.npy'
+        # Define whether to use average matrices or individual matrices from single survey simulations (use both by default)
+        average_all = [True,False]
 
-                                if average:
+        # Define default target R0 values 
+        R_0 = [1.2,1.4,1.5,1.6,2,2.4,2.8,2.9,3.2,3.6,4,4.4,4.8,5.2,5.6,6]
+
+        # Define parameter range specific to experiment
+        if experiment == 'exp1':       
+            input_params_all = [str(h) for h in range(7)]
+            target_groups_all = {'a':['elderly','children','adults']}
+            attr_all = ['a']
+        elif experiment == 'exp2_A':
+            input_params_all = ['tract_7']
+            target_groups_all = {'ar':['Non-White']}
+            attr_all = ['ar']
+            R_0 = [1.4,2.9]
+            experiment = 'exp2'
+        elif experiment == 'exp2_B':
+            input_params_all = [p + '_' + str(h) for h in range(9) for p in ['tract']]
+            target_groups_all = {'ar':['Non-White','White']}
+            attr_all = ['ar']
+            average_all = [True]
+            experiment = 'exp2'
+        elif experiment == 'supp_wg':
+            input_params_all = [str(h) for h in range(5)]
+            target_groups_all = {'ar':['Non-White', 'White']}
+            attr_all = ['ar']
+            R_0 = [2.9]
+        elif experiment == 'supp_exp_context':
+            input_params_all = [str(h) for h in range(8)]
+            target_groups_all = {'ar':['Non-White', 'White'],'a':['elderly','children','adults']}
+            attr_all = ['a','ar']
+            average_all = [True]
+            R_0 = [2.9]
+        elif experiment == 'supp_eth':
+            input_params_all = [p + '_' + str(h) for h in range(9) for p in ['tract']]
+            target_groups_all = {'ae':['Non-Hispanic','Hispanic']}
+            attr_all = ['ae']
+            R_0 = [1.4,2.9]
+        elif experiment == 'supp_income':
+            input_params_all = [p + '_' + str(h) for h in range(9) for p in ['tract']]
+            target_groups_all = {'as':['Low','Medium','High']}
+            attr_all = ['as']
+            R_0 = [1.4,2.9]
+        
+
+        # Iterate through SIR model parameter combinations; run SIR model for each setting and output infectious+recovered curves to file
+        for input_params in input_params_all:
+            for attr in attr_all:
+                for r in R_0:
+                    for target_groups_input in target_groups_all[attr]:
+                        for average in average_all:
+                            for raw in raw_all:
+                                for groundtruth in groundtruth_all:
                                     if groundtruth:
-                                        list_of_files = ['../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__gt__processed__' + attr + '__Overall.npy']
+                                        search_string = '../Data/Contact matrices/' + input_network +  '__' + experiment + '__' + input_params + '_[0-9]' + '__gt__processed__' + attr + '__Overall.npy'
                                     else:
-                                        list_of_files = ['../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__biased__processed__' + attr + '__Overall.npy']
-                                else:
-                                    list_of_files = glob.glob(search_string)
+                                        search_string = '../Data/Contact matrices/' + input_network +  '__' + experiment + '__' + input_params + '_[0-9]' + '__biased__processed__' + attr + '__Overall.npy'
 
-                                
-                                if attr == 'a':
-                                    if target_groups_input == 'elderly':
-                                        target_groups = [x for x in list(range(group_lens[attr])) if x > 12] # elderly
-                                    elif target_groups_input == 'children':
-                                        target_groups = [x for x in list(range(group_lens[attr])) if x < 4] # children
+                                    if average:
+                                        if groundtruth:
+                                            list_of_files = ['../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__processed__' + attr + '__Overall.npy']
+                                        else:
+                                            list_of_files = ['../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__processed__' + attr + '__Overall.npy']
                                     else:
-                                        target_groups = [x for x in list(range(group_lens[attr])) if x >= 4 and x <= 12] # adults
-                                    pop_dist = {0: 120467, 1: 133396, 2: 141965, 3: 136600, 4: 130735, 5: 134971, 6: 138814, 7: 128595, 8: 118190, 9: 122808, 10: 133518, 11: 143473, 12: 139797, 13: 124096, 14: 94146, 15: 64665, 16: 43637, 17: 39515}
-                                
-                                if attr == 'ae':
-                                    if target_groups_input == 'Hispanic':
-                                        target_groups = [x for x in list(range(group_lens[attr])) if x % 2 != 0] # hispanic
-                                    else:
-                                        target_groups = [x for x in list(range(group_lens[attr])) if x % 2 == 0] # non-hispanic
-                                    pop_dist = {0: 48810, 1: 71657, 2: 54460, 3: 78936, 4: 56836, 5: 85129, 6: 53764, 7: 82836, 8: 58819, 9: 71916, 10: 64166, 11: 70805, 12: 68870, 13: 69944, 14: 62894, 15: 65701, 16: 57878, 17: 60312, 18: 62080, 19: 60728, 20: 71078, 21: 62440, 22: 84997, 23: 58476, 24: 87833, 25: 51964, 26: 82300, 27: 41796, 28: 63948, 29: 30198, 30: 43126, 31: 21539, 32: 28585, 33: 15052, 34: 26199, 35: 13316}
+                                        list_of_files = glob.glob(search_string)
 
-                                if attr == 'ar':
-                                    if target_groups_input == 'White':
-                                        target_groups = [x for x in list(range(group_lens[attr])) if x % 7 == 0] # white
-                                    elif target_groups_input == 'Non-White':
-                                        target_groups = [x for x in list(range(group_lens[attr])) if x % 7 != 0] # non-white
-                                    elif target_groups_input == 'AIAN':
-                                        target_groups = [x for x in list(range(group_lens[attr])) if x % 7 == 3] # AIAN
-                                    pop_dist = {0: 85398, 1: 2367, 2: 1842, 3: 13452, 4: 141, 5: 9503, 6: 7764, 7: 92728, 8: 2700, 9: 1380, 10: 16448, 11: 107, 12: 11203, 13: 8830, 14: 100459, 15: 2249, 16: 1704, 17: 16850, 18: 103, 19: 13359, 20: 7241, 21: 97282, 22: 3197, 23: 1845, 24: 15171, 25: 57, 26: 13428, 27: 5620, 28: 91478, 29: 4336, 30: 2031, 31: 14757, 32: 290, 33: 12565, 34: 5278, 35: 95819, 36: 3371, 37: 3031, 38: 14397, 39: 139, 40: 13394, 41: 4820, 42: 102244, 43: 3667, 44: 3065, 45: 14671, 46: 121, 47: 11164, 48: 3882, 49: 94305, 50: 2785, 51: 2704, 52: 12424, 53: 75, 54: 12900, 55: 3402, 56: 85656, 57: 2478, 58: 2195, 59: 12740, 60: 40, 61: 12420, 62: 2661, 63: 91060, 64: 2916, 65: 2296, 66: 11293, 67: 189, 68: 12480, 69: 2574, 70: 98412, 71: 2504, 72: 2514, 73: 13349, 74: 22, 75: 13972, 76: 2745, 77: 113279, 78: 2012, 79: 2195, 80: 11183, 81: 44, 82: 11961, 83: 2799, 84: 112633, 85: 2722, 86: 2129, 87: 10752, 88: 50, 89: 8811, 90: 2700, 91: 103649, 92: 2559, 93: 1745, 94: 7415, 95: 13, 96: 6950, 97: 1765, 98: 78994, 99: 1225, 100: 1142, 101: 5656, 102: 32, 103: 5903, 104: 1194, 105: 55788, 106: 568, 107: 340, 108: 3739, 110: 3224, 111: 1006, 112: 36144, 113: 452, 114: 304, 115: 2773, 116: 31, 117: 2966, 118: 967, 119: 33507, 120: 735, 121: 206, 122: 2177, 124: 2250, 125: 640}
+                                    
+                                    if attr == 'a':
+                                        if target_groups_input == 'elderly':
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x > 12] # elderly
+                                        elif target_groups_input == 'children':
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x < 4] # children
+                                        else:
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x >= 4 and x <= 12] # adults
+                                        pop_dist = {0: 120467, 1: 133396, 2: 141965, 3: 136600, 4: 130735, 5: 134971, 6: 138814, 7: 128595, 8: 118190, 9: 122808, 10: 133518, 11: 143473, 12: 139797, 13: 124096, 14: 94146, 15: 64665, 16: 43637, 17: 39515}
+                                    
+                                    if attr == 'ae':
+                                        if target_groups_input == 'Hispanic':
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x % 2 != 0] # hispanic
+                                        else:
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x % 2 == 0] # non-hispanic
+                                        pop_dist = {0: 48810, 1: 71657, 2: 54460, 3: 78936, 4: 56836, 5: 85129, 6: 53764, 7: 82836, 8: 58819, 9: 71916, 10: 64166, 11: 70805, 12: 68870, 13: 69944, 14: 62894, 15: 65701, 16: 57878, 17: 60312, 18: 62080, 19: 60728, 20: 71078, 21: 62440, 22: 84997, 23: 58476, 24: 87833, 25: 51964, 26: 82300, 27: 41796, 28: 63948, 29: 30198, 30: 43126, 31: 21539, 32: 28585, 33: 15052, 34: 26199, 35: 13316}
 
-                                if attr == 'as':
-                                    if target_groups_input == 'Low':
-                                        target_groups = [x for x in list(range(group_lens[attr])) if x % 3 == 0] # low income
-                                    elif target_groups_input == 'Medium':
-                                        target_groups = [x for x in list(range(group_lens[attr])) if x % 3 == 1] # medium income
-                                    else:
-                                        target_groups = [x for x in list(range(group_lens[attr])) if x % 3 == 2] # high income
-                                    pop_dist = {0: 70917, 1: 44331, 2: 5219, 3: 76846, 4: 50304, 5: 6246, 6: 75339, 7: 58841, 8: 7785, 9: 74227, 10: 55413, 11: 6960, 12: 72959, 13: 52356, 14: 5420, 15: 64633, 16: 63976, 17: 6362, 18: 61985, 19: 67422, 20: 9407, 21: 57531, 22: 60122, 23: 10942, 24: 46923, 25: 59701, 26: 11566, 27: 45636, 28: 61132, 29: 16040, 30: 49150, 31: 63878, 32: 20490, 33: 49946, 34: 68360, 35: 25167, 36: 51769, 37: 65372, 38: 22656, 39: 45096, 40: 59699, 41: 19301, 42: 37941, 43: 43820, 44: 12385, 45: 28675, 46: 28969, 47: 7021, 48: 21250, 49: 18242, 50: 4145, 51: 20637, 52: 15597, 53: 3281}
+                                    if attr == 'ar':
+                                        if target_groups_input == 'White':
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x % 7 == 0] # white
+                                        elif target_groups_input == 'Non-White':
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x % 7 != 0] # non-white
+                                        elif target_groups_input == 'AIAN':
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x % 7 == 3] # AIAN
+                                        pop_dist = {0: 85398, 1: 2367, 2: 1842, 3: 13452, 4: 141, 5: 9503, 6: 7764, 7: 92728, 8: 2700, 9: 1380, 10: 16448, 11: 107, 12: 11203, 13: 8830, 14: 100459, 15: 2249, 16: 1704, 17: 16850, 18: 103, 19: 13359, 20: 7241, 21: 97282, 22: 3197, 23: 1845, 24: 15171, 25: 57, 26: 13428, 27: 5620, 28: 91478, 29: 4336, 30: 2031, 31: 14757, 32: 290, 33: 12565, 34: 5278, 35: 95819, 36: 3371, 37: 3031, 38: 14397, 39: 139, 40: 13394, 41: 4820, 42: 102244, 43: 3667, 44: 3065, 45: 14671, 46: 121, 47: 11164, 48: 3882, 49: 94305, 50: 2785, 51: 2704, 52: 12424, 53: 75, 54: 12900, 55: 3402, 56: 85656, 57: 2478, 58: 2195, 59: 12740, 60: 40, 61: 12420, 62: 2661, 63: 91060, 64: 2916, 65: 2296, 66: 11293, 67: 189, 68: 12480, 69: 2574, 70: 98412, 71: 2504, 72: 2514, 73: 13349, 74: 22, 75: 13972, 76: 2745, 77: 113279, 78: 2012, 79: 2195, 80: 11183, 81: 44, 82: 11961, 83: 2799, 84: 112633, 85: 2722, 86: 2129, 87: 10752, 88: 50, 89: 8811, 90: 2700, 91: 103649, 92: 2559, 93: 1745, 94: 7415, 95: 13, 96: 6950, 97: 1765, 98: 78994, 99: 1225, 100: 1142, 101: 5656, 102: 32, 103: 5903, 104: 1194, 105: 55788, 106: 568, 107: 340, 108: 3739, 110: 3224, 111: 1006, 112: 36144, 113: 452, 114: 304, 115: 2773, 116: 31, 117: 2966, 118: 967, 119: 33507, 120: 735, 121: 206, 122: 2177, 124: 2250, 125: 640}
 
-                                if average:
-                                    cm = np.load(list_of_files[0])
-                                    S_out, I_out, R_out = run_SIR(c=cm, N=N_pop, n_g=group_lens[attr], pop_split=pop_dist, pathogen=pathogen, target_groups=target_groups, target_R=r)
-                                    if groundtruth:
-                                        np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__gt__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Infectious.npy',arr=I_out)
-                                        np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__gt__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Recovered.npy',arr=R_out)
-                                        
-                                    else:
-                                        np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__biased__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Infectious.npy',arr=I_out)
-                                        np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*_' + date + '__biased__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Recovered.npy',arr=R_out)
+                                    if attr == 'as':
+                                        if target_groups_input == 'Low':
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x % 3 == 0] # low income
+                                        elif target_groups_input == 'Medium':
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x % 3 == 1] # medium income
+                                        else:
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x % 3 == 2] # high income
+                                        pop_dist = {0: 70917, 1: 44331, 2: 5219, 3: 76846, 4: 50304, 5: 6246, 6: 75339, 7: 58841, 8: 7785, 9: 74227, 10: 55413, 11: 6960, 12: 72959, 13: 52356, 14: 5420, 15: 64633, 16: 63976, 17: 6362, 18: 61985, 19: 67422, 20: 9407, 21: 57531, 22: 60122, 23: 10942, 24: 46923, 25: 59701, 26: 11566, 27: 45636, 28: 61132, 29: 16040, 30: 49150, 31: 63878, 32: 20490, 33: 49946, 34: 68360, 35: 25167, 36: 51769, 37: 65372, 38: 22656, 39: 45096, 40: 59699, 41: 19301, 42: 37941, 43: 43820, 44: 12385, 45: 28675, 46: 28969, 47: 7021, 48: 21250, 49: 18242, 50: 4145, 51: 20637, 52: 15597, 53: 3281}
 
-                                else:
-                                    for i in range(len(list_of_files)):
-                                        cm = np.load(list_of_files[i])
-                                        ind = list_of_files[i].find(date)
-                                        run_no = list_of_files[i][ind - 2]
-
+                                    if average:
+                                        cm = np.load(list_of_files[0])
                                         S_out, I_out, R_out = run_SIR(c=cm, N=N_pop, n_g=group_lens[attr], pop_split=pop_dist, pathogen=pathogen, target_groups=target_groups, target_R=r)
                                         if groundtruth:
-                                            np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_' + run_no + '_' + date + '__gt__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Infectious.npy',arr=I_out)
-                                            np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_' + run_no + '_' + date + '__gt__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Recovered.npy',arr=R_out)
+                                            np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Infectious.npy',arr=I_out)
+                                            np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Recovered.npy',arr=R_out)
+                                            
                                         else:
-                                            np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_' + run_no + '_' + date + '__biased__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Infectious.npy',arr=I_out)
-                                            np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_' + run_no + '_' + date + '__biased__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Recovered.npy',arr=R_out)
+                                            np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__biased__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Infectious.npy',arr=I_out)
+                                            np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__biased__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Recovered.npy',arr=R_out)
+
+                                    else:
+                                        for i in range(len(list_of_files)):
+                                            cm = np.load(list_of_files[i])
+                                            if groundtruth:
+                                                ind = list_of_files[i].find('gt')
+                                            else:
+                                                ind = list_of_files[i].find('biased')
+                                            run_no = list_of_files[i][ind - 3]
+
+                                            S_out, I_out, R_out = run_SIR(c=cm, N=N_pop, n_g=group_lens[attr], pop_split=pop_dist, pathogen=pathogen, target_groups=target_groups, target_R=r)
+                                            if groundtruth:
+                                                np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_' + run_no +  '__gt__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Infectious.npy',arr=I_out)
+                                                np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_' + run_no +  '__gt__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Recovered.npy',arr=R_out)
+                                            else:
+                                                np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_' + run_no +  '__biased__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Infectious.npy',arr=I_out)
+                                                np.save('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_' + run_no +  '__biased__processed__' + attr + '__' + pathogen + '_' + str(r).replace('.','_') + '__Overall_Recovered.npy',arr=R_out)
