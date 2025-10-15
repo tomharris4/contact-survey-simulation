@@ -14,8 +14,7 @@ metric =  'ar'
 
 days = 100
 
-input_network = 'NM_network_v3'
-date = '2025-09-18'
+input_network = 'NM_network'
 attr = 'a'
 N_pop = 2089388
 
@@ -31,13 +30,13 @@ ax4 = plt.subplot2grid((3, 3), (1, 0), colspan=3, rowspan=2)
 #Panel A - age contact matrices
 input_params = '2'
 
-cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__biased__raw__' + attr + '__Overall.npy')
-cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__gt__raw__' + attr + '__Overall.npy')
+cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__raw__' + attr + '__Overall.npy')
+cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__raw__' + attr + '__Overall.npy')
 
 cm_age = cm_age_biased - cm_age_sampled
 
 diff_max = max([h for j in range(len(cm_age)) for h in cm_age[j]])
-sb.heatmap(np.transpose(cm_age), ax=ax1, cmap="RdBu", center = 0, vmin = -1 * diff_max,  vmax = diff_max)#, cbar_kws={'label': '$\Delta$Mean # unique contacts\nper day'})
+sb.heatmap(np.transpose(cm_age), ax=ax1, cmap="RdBu", center = 0, vmin = -1 * diff_max,  vmax = diff_max)
 
 # Get the colorbar object
 cbar = ax1.collections[0].colorbar
@@ -71,13 +70,13 @@ ax1.text(
 #Panel A - age contact matrices 
 input_params = '3'
 
-cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__biased__raw__' + attr + '__Overall.npy')
-cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__gt__raw__' + attr + '__Overall.npy')
+cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__raw__' + attr + '__Overall.npy')
+cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__raw__' + attr + '__Overall.npy')
 
 cm_age = cm_age_biased - cm_age_sampled
 
 diff_max = max([h for j in range(len(cm_age)) for h in cm_age[j]])
-sb.heatmap(np.transpose(cm_age), ax=ax2, cmap="RdBu", center = 0, vmin = -1 * diff_max,  vmax = diff_max)#, cbar_kws={'label': '$\Delta$Mean # unique contacts\nper day'})
+sb.heatmap(np.transpose(cm_age), ax=ax2, cmap="RdBu", center = 0, vmin = -1 * diff_max,  vmax = diff_max)
 
 # Get the colorbar object
 cbar = ax2.collections[0].colorbar
@@ -105,8 +104,8 @@ ax2.text(
 #Panel A - age contact matrices
 input_params = '1'
 
-cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__biased__raw__' + attr + '__Overall.npy')
-cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__gt__raw__' + attr + '__Overall.npy')
+cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__raw__' + attr + '__Overall.npy')
+cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__raw__' + attr + '__Overall.npy')
 
 cm_age = cm_age_biased - cm_age_sampled
 
@@ -136,7 +135,7 @@ ax3.text(
          va='bottom', fontfamily='sans-serif', fontweight='bold', size=8)
 
 attr = 'a'
-input_params_all = ['0','2','3','1','6','4','5','7']#[str(h) for h in range(8)]
+input_params_all = ['0','2','3','1','6','4','5','7']
 target_group_all = ['elderly','children','adults']
 
 r_1 = ['None','S','W','C','S & W','S & C','W & C','All']
@@ -152,11 +151,11 @@ for target_group in target_group_all:
     ar_diff = []
     for input_params in input_params_all:
         if metric == 'ar':
-            I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
-            I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+            I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+            I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
         elif metric == 'prev':
-            I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
-            I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+            I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+            I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
         ar_diff.append(max(I_biased) - max(I_groundtruth))
         ar_diff_overall[len(ar_diff)-1] = ar_diff_overall[len(ar_diff)-1] + ar_diff[-1]
     if target_group == 'elderly':
@@ -190,8 +189,7 @@ plt.savefig('../Figures/Supplementary Material/Context_analysis_v3_' + pathogen 
 
 # RACE ANALYSIS
 
-input_network = 'NM_network_v3'
-date = '2025-09-18'
+input_network = 'NM_network'
 attr = 'r'
 N_pop = 2089388
 
@@ -207,13 +205,13 @@ race_dist_labels = ['.', 'White', 'Black', 'Asian', 'AIAN',  'NHPI','Other','Mul
 #Panel A - age contact matrices
 input_params = '2'
 
-cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__biased__raw__' + attr + '__Overall.npy')
-cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__gt__raw__' + attr + '__Overall.npy')
+cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__raw__' + attr + '__Overall.npy')
+cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__raw__' + attr + '__Overall.npy')
 
 cm_age = cm_age_biased - cm_age_sampled
 
 diff_max = 0.65#max([h for j in range(len(cm_age)) for h in cm_age[j]])
-sb.heatmap(np.transpose(cm_age), ax=ax1, cmap="RdBu", center = 0, vmin = -1 * diff_max,  vmax = diff_max)#, cbar_kws={'label': '$\Delta$Mean # unique contacts\nper day'})
+sb.heatmap(np.transpose(cm_age), ax=ax1, cmap="RdBu", center = 0, vmin = -1 * diff_max,  vmax = diff_max)
 
 # Get the colorbar object
 cbar = ax1.collections[0].colorbar
@@ -248,13 +246,12 @@ ax1.text(
 #Panel A - age contact matrices 
 input_params = '3'
 
-cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__biased__raw__' + attr + '__Overall.npy')
-cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__gt__raw__' + attr + '__Overall.npy')
+cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__raw__' + attr + '__Overall.npy')
+cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__raw__' + attr + '__Overall.npy')
 
 cm_age = cm_age_biased - cm_age_sampled
 
-# diff_max = max([h for j in range(len(cm_age)) for h in cm_age[j]])
-sb.heatmap(np.transpose(cm_age), ax=ax2, cmap="RdBu", center = 0, vmin = -1 * diff_max,  vmax = diff_max)#, cbar_kws={'label': '$\Delta$Mean # unique contacts\nper day'})
+sb.heatmap(np.transpose(cm_age), ax=ax2, cmap="RdBu", center = 0, vmin = -1 * diff_max,  vmax = diff_max)
 
 # Get the colorbar object
 cbar = ax2.collections[0].colorbar
@@ -282,8 +279,8 @@ ax2.text(
 #Panel A - age contact matrices
 input_params = '1'
 
-cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__biased__raw__' + attr + '__Overall.npy')
-cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*_' + date + '__gt__raw__' + attr + '__Overall.npy')
+cm_age_biased = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__raw__' + attr + '__Overall.npy')
+cm_age_sampled = np.load('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__raw__' + attr + '__Overall.npy')
 
 cm_age = cm_age_biased - cm_age_sampled
 
@@ -338,11 +335,11 @@ for target_group in target_group_all:
     ar_diff = []
     for input_params in input_params_all:
         if metric == 'ar':
-            I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_' + '*' +'_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
-            I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_' + '*' +'_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+            I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_' + '*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+            I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_' + '*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
         elif metric == 'prev':
-            I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*_' + date + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
-            I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*_' + date + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+            I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+            I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_group + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
         ar_diff.append(max(I_biased) - max(I_groundtruth))
         ar_diff_overall[len(ar_diff)-1] = ar_diff_overall[len(ar_diff)-1] + ar_diff[-1]
     if target_group == 'Non-White':
