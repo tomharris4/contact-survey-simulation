@@ -75,30 +75,21 @@ school_to_grades_dict = dict()
 
 
 # Randomly assign students and teachers to school groups based on county-level data
-sg_sizes = pd.read_csv('../Data/Misc/counties_schoolgroups.csv')
-
-sg_sizes['counties'] = [h[1:-2] for h in sg_sizes['counties']]
-
-sg_sizes = sg_sizes[[h[0:2] == '35' for h in sg_sizes['counties']]] # New Mexico
-
-sg_sizes['pre_k'] = [h[1:-2] for h in sg_sizes['pre_k']]
-sg_sizes['kind'] = [h[1:-2] for h in sg_sizes['kind']]
-sg_sizes['elem'] = [h[1:-2] for h in sg_sizes['elem']]
-sg_sizes['sec'] = [h[1:-2] for h in sg_sizes['sec']]
+sg_sizes = pd.read_csv('../Data/Misc/nm_counties_schoolgroups.csv')
 
 grade_sg_sizes = {}
 for row in sg_sizes.iterrows():
-    grade_sg_sizes[(row[1]['counties'],1)] = row[1]['pre_k']
-    grade_sg_sizes[(row[1]['counties'],2)] = row[1]['kind']
+    grade_sg_sizes[(row[1]['Counties'],1)] = row[1]['Pre-Kindergarten']
+    grade_sg_sizes[(row[1]['Counties'],2)] = row[1]['Kindergarten']
 
     for j in range(3,8):
-        grade_sg_sizes[(row[1]['counties'],j)] = row[1]['elem']
+        grade_sg_sizes[(row[1]['Counties'],j)] = row[1]['Elementary']
 
     for j in range(8,15):
-        grade_sg_sizes[(row[1]['counties'],j)] = row[1]['sec']
+        grade_sg_sizes[(row[1]['Counties'],j)] = row[1]['Secondary']
 
     for j in range(15,17):
-        grade_sg_sizes[(row[1]['counties'],j)] = uni_class
+        grade_sg_sizes[(row[1]['Counties'],j)] = uni_class
 
 school_to_grades = dict(school_to_grades)
 teacher_to_grades_dict = dict()
@@ -108,7 +99,7 @@ for i in school_to_grades:
     sg_teacher_dict = {}
     uniq = np.unique(school_to_grades[i],return_counts=True)
     for j in range(len(uniq[0])):
-        num_sgs = max(1,round(uniq[1][j] / int(grade_sg_sizes[(str(i[1])[0:5],uniq[0][j])])))
+        num_sgs = max(1,round(uniq[1][j] / int(grade_sg_sizes[(int(str(i[1])[0:5]),uniq[0][j])])))
         sg_dict[uniq[0][j]] = num_sgs
     school_to_grades_dict[i] = sg_dict
 
@@ -152,9 +143,7 @@ urbanpop_work = urbanpop[urbanpop['work_naics_temp'] > 0]
 
 
 # Randomly assign workers to work groups based on NAICS data
-naics_to_wg_size = pd.read_csv('../Data/Misc/workgroups.csv')
-
-naics_to_wg_size = naics_to_wg_size[naics_to_wg_size['FIPS'] == 35] # New Mexico
+naics_to_wg_size = pd.read_csv('../Data/Misc/nm_workgroups.csv')
 
 naics_to_wg_size['NAICS'] = [h.ljust(3,'0') for h in naics_to_wg_size['NAICS']]
 
@@ -162,7 +151,7 @@ naics_to_wg_size['NAICS'] = [h.replace('M','0') for h in naics_to_wg_size['NAICS
 
 naics_to_wg_size['NAICS'] = [h.replace('S','0') for h in naics_to_wg_size['NAICS']]
 
-naics_to_wg_size = dict(zip(naics_to_wg_size['NAICS'],naics_to_wg_size['workgroup size']))
+naics_to_wg_size = dict(zip(naics_to_wg_size['NAICS'],naics_to_wg_size['Mean workgroup size']))
 
 dt_to_industry = urbanpop_work.groupby(by='daytime_blockgroup').work_naics_temp.apply(list)
 industry_to_wgs = dict(dt_to_industry)
