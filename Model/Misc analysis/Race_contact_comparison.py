@@ -5,9 +5,8 @@ import pickle
 import seaborn as sb
 import matplotlib.pyplot as plt
 
-experiment = 'exp3__survey_tract_'
-input_network = 'NM_network_v3'
-date = '2025-07-07'
+experiment = 'exp2__survey_tract_'
+input_network = 'NM_network'
 attr = 'r'
 
 white_bias = []
@@ -31,7 +30,7 @@ for i in input_params:
     n_white_contacts = 0
 
     for j in survey_reps:
-        contact_survey = pickle.load(open('../Data/Contact survey data/' + input_network + '__' + experiment + str(i) + '_' + str(j) + '_' + date + '.pickle', 'rb'))
+        contact_survey = pickle.load(open('../Data/Contact survey data/' + input_network + '__' + experiment + str(i) + '_' + str(j) + '.pickle', 'rb'))
         for n in contact_survey:
             for u,v,data in G.edges(n, data=True):
                 if G.nodes[v]['race'] in target_groups:
