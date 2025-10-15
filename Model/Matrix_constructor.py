@@ -41,7 +41,7 @@ def get_pop_dist(G, attr, contact_survey):
                 k += 1
         elif attr == 's':
             for node in G.nodes:
-                i = G.nodes[node]['ses'] - 1
+                i = G.nodes[node]['income'] - 1
                 dist[k] = i
                 k += 1
         elif attr == 'ar':
@@ -59,8 +59,8 @@ def get_pop_dist(G, attr, contact_survey):
         elif attr == 'as':
             for node in G.nodes:
                 i_age = np.digitize(G.nodes[node]['age'],bins) - 1
-                i_ses = G.nodes[node]['ses'] - 1
-                dist[k] = i_age * S + i_ses
+                i_income = G.nodes[node]['income'] - 1
+                dist[k] = i_age * S + i_income
                 k += 1
 
         dist_uniq = np.unique(dist, return_counts=True)
@@ -114,12 +114,12 @@ def get_pop_dist(G, attr, contact_survey):
                 k += 1
         elif attr == 's':
             for node in G.nodes:
-                i = G.nodes[node]['ses'] - 1
+                i = G.nodes[node]['income'] - 1
                 dist[k] = i
                 k += 1
             k = 0
             for node in contact_survey_dict:
-                i = G.nodes[node]['ses'] - 1
+                i = G.nodes[node]['income'] - 1
                 dist_sampled[k] = i
                 k += 1
         elif attr == 'ar':
@@ -149,14 +149,14 @@ def get_pop_dist(G, attr, contact_survey):
         elif attr == 'as':
             for node in G.nodes:
                 i_age = np.digitize(G.nodes[node]['age'],bins) - 1
-                i_ses = G.nodes[node]['ses'] - 1
-                dist[k] = i_age * S + i_ses
+                i_income = G.nodes[node]['income'] - 1
+                dist[k] = i_age * S + i_income
                 k += 1
             k = 0
             for node in contact_survey_dict:
                 i_age = np.digitize(G.nodes[node]['age'],bins) - 1
-                i_ses = G.nodes[node]['ses'] - 1
-                dist_sampled[k] = i_age * S + i_ses
+                i_income = G.nodes[node]['income'] - 1
+                dist_sampled[k] = i_age * S + i_income
                 k += 1
 
         dist_uniq = np.unique(dist, return_counts=True)
@@ -183,8 +183,8 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
     eth_dist_labels = ['Non-Hispanic','Hispanic']
     E = len(eth_dist_labels)
 
-    ses_dist_labels = ['Lower','Middle', 'Upper']
-    S = len(ses_dist_labels)
+    income_dist_labels = ['Lower','Middle', 'Upper']
+    S = len(income_dist_labels)
 
     # Define number of groups in multiple stratification scenarios (e.g. age + ethnicity)
     A_E = A*E
@@ -234,8 +234,8 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
                 u_group = G.nodes[u]['ethnicity']
                 v_group = G.nodes[v]['ethnicity']
             elif attr == 's':
-                u_group = int(G.nodes[u]['ses']) - 1
-                v_group = int(G.nodes[v]['ses']) - 1
+                u_group = int(G.nodes[u]['income']) - 1
+                v_group = int(G.nodes[v]['income']) - 1
             elif attr == 'ar':
                 u_group_age = np.digitize(G.nodes[u]['age'],bins) - 1
                 v_group_age = np.digitize(G.nodes[v]['age'],bins) - 1
@@ -258,11 +258,11 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
                 u_group_age = np.digitize(G.nodes[u]['age'],bins) - 1
                 v_group_age = np.digitize(G.nodes[v]['age'],bins) - 1
 
-                u_group_ses = int(G.nodes[u]['ses']) - 1
-                v_group_ses = int(G.nodes[v]['ses']) - 1
+                u_group_income = int(G.nodes[u]['income']) - 1
+                v_group_income = int(G.nodes[v]['income']) - 1
 
-                u_group = u_group_age * S + u_group_ses
-                v_group = v_group_age * S + v_group_ses
+                u_group = u_group_age * S + u_group_income
+                v_group = v_group_age * S + v_group_income
 
             cm[v_group][u_group] += 1
             cm[u_group][v_group] += 1
@@ -330,11 +330,11 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
                         v_group = sampled_nodes[u][v]['recall_eth_estimate']
                 elif attr == 's':
                     if groundtruth:
-                        u_group = int(G.nodes[u]['ses']) - 1
-                        v_group = int(G.nodes[v]['ses']) - 1
+                        u_group = int(G.nodes[u]['income']) - 1
+                        v_group = int(G.nodes[v]['income']) - 1
                     else:
-                        u_group = int(G.nodes[u]['ses']) - 1
-                        v_group = int(sampled_nodes[u][v]['recall_ses_estimate']) - 1
+                        u_group = int(G.nodes[u]['income']) - 1
+                        v_group = int(sampled_nodes[u][v]['recall_income_estimate']) - 1
                 elif attr == 'ar':
                     u_group_age = np.digitize(G.nodes[u]['age'],bins) - 1
                     v_group_age = np.digitize(G.nodes[v]['age'],bins) - 1
@@ -366,14 +366,14 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
                     v_group_age = np.digitize(G.nodes[v]['age'],bins) - 1
 
                     if groundtruth:
-                        u_group_ses = int(G.nodes[u]['ses']) - 1
-                        v_group_ses = int(G.nodes[v]['ses']) - 1
+                        u_group_income = int(G.nodes[u]['income']) - 1
+                        v_group_income = int(G.nodes[v]['income']) - 1
                     else:
-                        u_group_ses = int(G.nodes[u]['ses']) - 1
-                        v_group_ses = int(sampled_nodes[u][v]['recall_ses_estimate']) - 1
+                        u_group_income = int(G.nodes[u]['income']) - 1
+                        v_group_income = int(sampled_nodes[u][v]['recall_income_estimate']) - 1
 
-                    u_group = u_group_age * S + u_group_ses
-                    v_group = v_group_age * S + v_group_ses
+                    u_group = u_group_age * S + u_group_income
+                    v_group = v_group_age * S + v_group_income
 
                 cm[u_group][v_group] += 1
 
@@ -430,14 +430,13 @@ def build_contact_matrix(G, attr, contact_survey=None, groundtruth=True, symmetr
 if __name__ == '__main__':
     
     # Load input contact network; assign to G
-    input_network =  'NM_network_v3'
+    input_network =  'NM_network'
     G = pickle.load(open('../Data/Contact network/' + input_network + '.pickle', 'rb'))
 
-    # Define date of survey simulation (i.e. computer time date when survey_simulator.py was run)
-    date = '2025-09-18'
-
-    # Define experiment name
-    experiment = 'supp_exp_context'
+    # Define experimental conditions for contact survey simulation
+    # Main analysis: Ground truth matrices ('groundtruth'), Experiment 1 ('exp1'), Experiment 2 ('exp2')
+    # Supplemental analysis: ethnicity bias ('supp_eth'), income bias ('supp_income'), within-group bias ('supp_wg'), transmissing setting SA ('supp_exp_context')
+    experiments = ['groundtruth','exp1','exp2']
 
     # Define context labels for contact matrices
     cm_out_labels = ['Overall','Community','Household','Workplace','School']
@@ -451,110 +450,165 @@ if __name__ == '__main__':
                           'ar':[h for h in range(126) if h % 7 != 0],
                           'as':[h for h in range(54) if h % 3 == 0]}
 
+    for experiment in experiments:
 
-    # FULL POPULATION GROUNDTRUTH MATRICES
-    if experiment == 'groundtruth':
-        for a in attr:
-            cm_out = build_contact_matrix(G = G, attr = a, contact_survey=None, 
-                                                        groundtruth=True, symmetry=False, per_capita=False)
+        # FULL POPULATION GROUNDTRUTH MATRICES
+        if experiment == 'groundtruth':
+            for a in attr:
+                cm_out = build_contact_matrix(G = G, attr = a, contact_survey=None, 
+                                                            groundtruth=True, symmetry=False, per_capita=False)
+            
+                for i in range(len(cm_out)):
+                    np.save('../Data/Contact matrices/' + input_network + '__full_pop__'  + a + '__' + cm_out_labels[i] + '.npy',arr=cm_out[i])
+
+                cm_out = build_contact_matrix(G = G, attr = a, contact_survey=None, 
+                                                            groundtruth=True, symmetry=True, per_capita=True)
+            
+                for i in range(len(cm_out)):
+                    np.save('../Data/Contact matrices/' + input_network + '__full_pop__processed__'  + a + '__' + cm_out_labels[i] + '.npy',arr=cm_out[i])
+
+        # EXPERIMENT 1: Age
+        if experiment == 'exp1':
+            attr = ['a']
+            input_survey = glob.glob('../Data/Contact survey data/' + input_network + '__' + experiment + '__survey*' + '.pickle')
+            input_survey = [h.split('__exp1__')[1][:-7] for h in input_survey]
+            
+            for a in attr:
+                for survey_in in input_survey:
+
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp1__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp1__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp1__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp1__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+
+        # EXPERIMENT 2: Race
+        if experiment == 'exp2':
+            attr = ['r','ar']
+            input_survey = glob.glob('../Data/Contact survey data/'+ input_network + '__' + experiment + '__survey_tract*' + '.pickle')
+            input_survey = [h.split('__' + experiment + '__')[1][:-7] for h in input_survey]
+            
+            for a in attr:
+                for survey_in in input_survey:
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+
+
+        # SUPPLEMENTAL EXPERIMENTS
+        if experiment == 'supp_wg':
+            attr = ['r','ar']
+            input_survey = glob.glob('../Data/Contact survey data/'+ input_network + '__' + experiment + '__*' + '.pickle')
+            input_survey = [h.split('__' + experiment + '__')[1][:-7] for h in input_survey]
+            
+            for a in attr:
+                for survey_in in input_survey:
+
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+                    
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+
         
-            for i in range(len(cm_out)):
-                np.save('../Data/Contact matrices/' + input_network + '__full_pop__'  + a + '__' + cm_out_labels[i] + '.npy',arr=cm_out[i])
+        if experiment == 'supp_exp_context':
+            attr = ['a','r','ar']
+            input_survey = glob.glob('../Data/Contact survey data/'+ input_network + '__' + experiment + '__*' + '.pickle')
+            input_survey = [h.split('__' + experiment + '__')[1][:-7] for h in input_survey]
+            
+            for a in attr:
+                for survey_in in input_survey:
 
-            cm_out = build_contact_matrix(G = G, attr = a, contact_survey=None, 
-                                                        groundtruth=True, symmetry=True, per_capita=True)
-        
-            for i in range(len(cm_out)):
-                np.save('../Data/Contact matrices/' + input_network + '__full_pop__processed__'  + a + '__' + cm_out_labels[i] + '.npy',arr=cm_out[i])
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
 
-    # EXPERIMENT 1: Age
-    if experiment == 'exp1':
-        attr = ['a']
-        input_survey = glob.glob('../Data/Contact survey data/' + input_network + '__exp1__survey*' + date + '.pickle')
-        input_survey = [h.split('__exp1__')[1][:-7] for h in input_survey]
-        
-        for a in attr:
-            for survey_in in input_survey:
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
+                    
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
 
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp1__' + survey_in + '.pickle', 
-                                                            groundtruth=True, symmetry=False, per_capita=False, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__gt__raw__' + a + '__Binary.npy',arr=cm_out[5])
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
 
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp1__' + survey_in + '.pickle', 
-                                                            groundtruth=True, symmetry=True, per_capita=True, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__gt__processed__' + a + '__Binary.npy',arr=cm_out[5])
+        if experiment == 'supp_eth':
+            attr = ['e','ae']
+            input_survey = glob.glob('../Data/Contact survey data/'+ input_network + '__exp2__survey_tract*' + '.pickle')
+            input_survey = [h.split('__exp2__')[1][:-7] for h in input_survey]
+            
+            for a in attr:
+                for survey_in in input_survey:
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp2__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
 
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp1__' + survey_in + '.pickle', 
-                                                            groundtruth=False, symmetry=False, per_capita=False, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__biased__raw__' + a + '__Binary.npy',arr=cm_out[5])
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp2__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
 
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp1__' + survey_in + '.pickle', 
-                                                            groundtruth=False, symmetry=True, per_capita=True, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__exp1__' + survey_in[7:] + '__biased__processed__' + a + '__Binary.npy',arr=cm_out[5])
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp2__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
 
-    # EXPERIMENT 2: Race
-    if experiment == 'exp2':
-        attr = ['r','ar']
-        input_survey = glob.glob('../Data/Contact survey data/'+ input_network + '__' + experiment + '__survey_tract*' + date + '.pickle')
-        input_survey = [h.split('__' + experiment + '__')[1][:-7] for h in input_survey]
-        
-        for a in attr:
-            for survey_in in input_survey:
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=True, symmetry=False, per_capita=False, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[1] + '.npy',arr=cm_out[1])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__Binary.npy',arr=cm_out[5])
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp2__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
 
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=True, symmetry=True, per_capita=True, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[1] + '.npy',arr=cm_out[1])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__Binary.npy',arr=cm_out[5])
+        if experiment == 'supp_income':
+            attr = ['s','as']
+            input_survey = glob.glob('../Data/Contact survey data/'+ input_network + '__exp2__survey_tract*' + '.pickle')
+            input_survey = [h.split('__exp2__')[1][:-7] for h in input_survey]
+            
+            for a in attr:
+                for survey_in in input_survey:
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp2__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
 
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=False, symmetry=False, per_capita=False, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[1] + '.npy',arr=cm_out[1])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__Binary.npy',arr=cm_out[5])
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp2__' + survey_in + '.pickle', 
+                                                                groundtruth=True, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
 
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=False, symmetry=True, per_capita=True, target_groups=target_groups_attr[a])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[1] + '.npy',arr=cm_out[1])
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__Binary.npy',arr=cm_out[5])
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp2__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=False, per_capita=False)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
 
-    
-     # EXPERIMENT SAMPLE SIZE: Age, race
-
-    # SUPPLEMENTRAL EXPERIMENTS
-    if experiment == 'supp_exp_context' or experiment == 'supp_wg':
-        attr = ['r','ar']
-        input_survey = glob.glob('../Data/Contact survey data/'+ input_network + '__' + experiment + '__*' + date + '.pickle')
-        input_survey = [h.split('__' + experiment + '__')[1][:-7] for h in input_survey]
-        
-        for a in attr:
-            for survey_in in input_survey:
-
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=True, symmetry=False, per_capita=False, target_groups=None)
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=True, symmetry=True, per_capita=True, target_groups=None)
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__gt__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-                
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=False, symmetry=False, per_capita=False, target_groups=None)
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__raw__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-
-                cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__' + experiment + '__' + survey_in + '.pickle', 
-                                                            groundtruth=False, symmetry=True, per_capita=True, target_groups=None)
-                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
-
-    
-    
+                    cm_out = build_contact_matrix(G = G, attr = a, contact_survey = '../Data/Contact survey data/' + input_network + '__exp2__' + survey_in + '.pickle', 
+                                                                groundtruth=False, symmetry=True, per_capita=True)
+                    np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + survey_in[7:] + '__biased__processed__' + a + '__' + cm_out_labels[0] + '.npy',arr=cm_out[0])
