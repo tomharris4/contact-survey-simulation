@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 experiment = 'exp1'
-pathogen = 'C_2_9'
+pathogen = 'X_2_9'
 metric =  'ar'
 
 if pathogen in ['C_2_9','X_2_9']:  
@@ -141,7 +141,7 @@ if average:
             ax[1][0].plot(r_1, ar_diff, alpha=0.5, lw=1.5, label=target_group.title())
 
     ax[1][0].plot(r_1, ar_diff_overall, alpha=0.5, lw=1.5, label='Overall')
-    ax[1][0].set_xlabel('Bias magnitude ($b_{age}$)')
+    ax[1][0].set_xlabel('Bias magnitude ($a$)')
 else:
     ar_diff_children = []
     ar_diff_adults = []
@@ -179,7 +179,7 @@ else:
     ax[1][0].errorbar(r_1, [np.mean(h) for h in ar_diff_adults], yerr= ar_diff_adults_err, alpha=0.5, lw=1.5, label='Adults')
     ax[1][0].errorbar(r_1, [np.mean(h) for h in ar_diff_older], yerr= ar_diff_older_err, alpha=0.5, lw=1.5, label='Older')
     ax[1][0].errorbar(r_1, [np.mean(h) for h in ar_diff_overall], yerr= ar_diff_overall_err, alpha=0.5, lw=1.5, label='Overall')
-    ax[1][0].set_xlabel('Bias magnitude ($b_{age}$)')
+    ax[1][0].set_xlabel('Bias magnitude ($a$)')
 
 if metric == 'ar':
     ax[1][0].set_ylabel('$\Delta$[Final Size]')
@@ -234,7 +234,7 @@ ax[1][1].invert_yaxis()
 ax[1][1].set_xticklabels(r)
 ax[1][1].set_yticklabels(r0)
 
-ax[1][1].set_xlabel('Bias magnitude ($b_{age}$)')
+ax[1][1].set_xlabel('Bias magnitude ($a$)')
 ax[1][1].set_ylabel('$R_0$')
 ax[1][1].set(title='Attack Rate (AR) among older\npeople (65+ years)')
 
