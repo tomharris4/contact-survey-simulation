@@ -189,7 +189,7 @@ else:
 
 ax[1][0].set_xlabel('Bias magnitude ($r_{NW}$)')
 if metric == 'ar':
-    ax[1][0].set_ylabel('$\Delta$[Final size]')
+    ax[1][0].set_ylabel('$\Delta$[Final Epidemic Size]')
 elif metric == 'prev':
     ax[1][0].set_ylabel('$\Delta$[Peak Prevalence]')
 ax[1][0].ticklabel_format(style='scientific', axis='y', scilimits=(0, 0))

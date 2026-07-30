@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 experiment = 'exp1'
-pathogen = 'X_2_9'
+pathogen = 'C_2_9'
 metric =  'ar'
 
 if pathogen in ['C_2_9','X_2_9']:  
@@ -182,7 +182,7 @@ else:
     ax[1][0].set_xlabel('Bias magnitude ($a$)')
 
 if metric == 'ar':
-    ax[1][0].set_ylabel('$\Delta$[Final Size]')
+    ax[1][0].set_ylabel('$\Delta$[Final Epidemic Size]')
 elif metric == 'prev': 
     ax[1][0].set_ylabel('$\Delta$[Peak Prevalence]')
 ax[1][0].ticklabel_format(style='scientific', axis='y', scilimits=(0, 0))
