@@ -140,6 +140,7 @@ if __name__ == '__main__':
     # Main analysis: Experiment 1 ('exp1'), Experiment 2 - part A ('exp2_A'), Experiment 2 - part B ('exp2_B')
     # Supplemental analysis: ethnicity bias ('supp_eth'), income bias ('supp_income'), within-group bias ('supp_wg'), transmissing setting SA ('supp_exp_context')
     experiments = ['exp1','exp2_A','exp2_B']
+    # experiments = ['supp_wg']
 
     # Define total size of synthetic population
     N_pop = 2089388
@@ -171,19 +172,19 @@ if __name__ == '__main__':
             attr_all = ['a']
         elif experiment == 'exp2_A':
             input_params_all = ['tract_7']
-            target_groups_all = {'ar':['Non-White']}
+            target_groups_all = {'ar':['AIAN', 'Other', 'White']}
             attr_all = ['ar']
             R_0 = [1.4,2.9]
             experiment = 'exp2'
         elif experiment == 'exp2_B':
             input_params_all = [p + '_' + str(h) for h in range(9) for p in ['tract']]
-            target_groups_all = {'ar':['Non-White','White']}
+            target_groups_all = {'ar':['AIAN', 'Other', 'White']}
             attr_all = ['ar']
             average_all = [True]
             experiment = 'exp2'
         elif experiment == 'supp_wg':
             input_params_all = [str(h) for h in range(5)]
-            target_groups_all = {'ar':['Non-White', 'White']}
+            target_groups_all = {'ar':['AIAN', 'Other', 'White']}
             attr_all = ['ar']
             R_0 = [2.9]
         elif experiment == 'supp_exp_context':
@@ -248,7 +249,9 @@ if __name__ == '__main__':
                                         elif target_groups_input == 'Non-White':
                                             target_groups = [x for x in list(range(group_lens[attr])) if x % 7 != 0] # non-white
                                         elif target_groups_input == 'AIAN':
-                                            target_groups = [x for x in list(range(group_lens[attr])) if x % 7 == 3] # AIAN
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x % 7 == 3] # AIAN 
+                                        elif target_groups_input == 'Other':
+                                            target_groups = [x for x in list(range(group_lens[attr])) if x % 7 == 5] # Other
                                         pop_dist = {0: 85398, 1: 2367, 2: 1842, 3: 13452, 4: 141, 5: 9503, 6: 7764, 7: 92728, 8: 2700, 9: 1380, 10: 16448, 11: 107, 12: 11203, 13: 8830, 14: 100459, 15: 2249, 16: 1704, 17: 16850, 18: 103, 19: 13359, 20: 7241, 21: 97282, 22: 3197, 23: 1845, 24: 15171, 25: 57, 26: 13428, 27: 5620, 28: 91478, 29: 4336, 30: 2031, 31: 14757, 32: 290, 33: 12565, 34: 5278, 35: 95819, 36: 3371, 37: 3031, 38: 14397, 39: 139, 40: 13394, 41: 4820, 42: 102244, 43: 3667, 44: 3065, 45: 14671, 46: 121, 47: 11164, 48: 3882, 49: 94305, 50: 2785, 51: 2704, 52: 12424, 53: 75, 54: 12900, 55: 3402, 56: 85656, 57: 2478, 58: 2195, 59: 12740, 60: 40, 61: 12420, 62: 2661, 63: 91060, 64: 2916, 65: 2296, 66: 11293, 67: 189, 68: 12480, 69: 2574, 70: 98412, 71: 2504, 72: 2514, 73: 13349, 74: 22, 75: 13972, 76: 2745, 77: 113279, 78: 2012, 79: 2195, 80: 11183, 81: 44, 82: 11961, 83: 2799, 84: 112633, 85: 2722, 86: 2129, 87: 10752, 88: 50, 89: 8811, 90: 2700, 91: 103649, 92: 2559, 93: 1745, 94: 7415, 95: 13, 96: 6950, 97: 1765, 98: 78994, 99: 1225, 100: 1142, 101: 5656, 102: 32, 103: 5903, 104: 1194, 105: 55788, 106: 568, 107: 340, 108: 3739, 110: 3224, 111: 1006, 112: 36144, 113: 452, 114: 304, 115: 2773, 116: 31, 117: 2966, 118: 967, 119: 33507, 120: 735, 121: 206, 122: 2177, 124: 2250, 125: 640}
 
                                     if attr == 'as':

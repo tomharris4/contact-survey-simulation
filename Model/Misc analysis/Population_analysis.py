@@ -76,20 +76,20 @@ fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(9,3))
 agents['Race'] = ['Non-White' if h!= 0 else 'White' for h in agents['race']]
 
 # Race: age
-sb.histplot(agents, x='age', stat='percent', hue='Race', binwidth=5, binrange=(0,95), ax=ax[0])
+sb.histplot(agents, x='age', stat='percent', hue='Race', binwidth=5, binrange=(0,95), ax=ax[0], palette=sb.color_palette('tab10',2), element='step')
 ax[0].set(title='Race-Age', xlabel="Age", ylabel="Percentage of total \npopulation (%)")
 ax[0].legend(title='', loc='upper center', bbox_to_anchor=(0.5, -0.22),
           fancybox=False, labels=['Non-White', 'White'], ncol=2,frameon=False)
 
 
 # Ethnicity: age
-sb.histplot(agents, x='age', stat='percent', hue='ethnicity', binwidth=5, binrange=(0,95), ax=ax[1])
+sb.histplot(agents, x='age', stat='percent', hue='ethnicity', binwidth=5, binrange=(0,95), ax=ax[1], palette=sb.color_palette('tab10',2), element='step')
 ax[1].set(title='Ethnicity-Age', xlabel="Age", ylabel="Percentage of total \npopulation (%)")
 ax[1].legend(title='', loc='upper center', bbox_to_anchor=(0.5, -0.22),
           fancybox=False, labels=['Hispanic', 'Non-Hispanic'], ncol=2,frameon=False)
 
 # Income: age
-sb.histplot(agents, x='age', stat='percent', hue='income', binwidth=5, binrange=(0,95), ax=ax[2])
+sb.histplot(agents, x='age', stat='percent', hue='income', binwidth=5, binrange=(0,95), ax=ax[2], palette=sb.color_palette('tab10',3), element='step')
 ax[2].set(title='Income-Age', xlabel="Age", ylabel="Percentage of total \npopulation (%)")
 ax[2].legend(title='', loc='upper center', bbox_to_anchor=(0.5, -0.22),
           fancybox=False, labels=['Upper', 'Middle', 'Lower'], ncol=2, frameon=False)

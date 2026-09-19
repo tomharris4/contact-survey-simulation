@@ -23,6 +23,9 @@ if __name__ == '__main__':
     # Define whether to analyse biased and/or true contact matrices
     groundtruth_all = [False,True]
 
+    # Define which contact setting to analyse contact within - 'Overall','Community','Household','Workplace','School'
+    contact_setting = 'Overall'
+
     for experiment in experiments:
 
         # Define parameter space specific to experiment
@@ -53,14 +56,14 @@ if __name__ == '__main__':
 
                         if raw:
                             if groundtruth:
-                                search_string = '../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_[0-9]' + '__gt__raw__' + attr + '__Overall.npy'
+                                search_string = '../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_[0-9]' + '__gt__raw__' + attr + '__' + contact_setting + '.npy'
                             else:
-                                search_string = '../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_[0-9]' + '__biased__raw__' + attr + '__Overall.npy'
+                                search_string = '../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_[0-9]' + '__biased__raw__' + attr + '__' + contact_setting + '.npy'
                         else:
                             if groundtruth:
-                                search_string = '../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_[0-9]' + '__gt__processed__' + attr + '__Overall.npy'
+                                search_string = '../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_[0-9]' + '__gt__processed__' + attr + '__' + contact_setting + '.npy'
                             else:
-                                search_string = '../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_[0-9]' + '__biased__processed__' + attr + '__Overall.npy'
+                                search_string = '../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_[0-9]' + '__biased__processed__' + attr + '__' + contact_setting + '.npy'
 
                         list_of_files = glob.glob(search_string)
 
@@ -158,16 +161,16 @@ if __name__ == '__main__':
                             
                         if raw:
                             if groundtruth:
-                                fig.savefig('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__raw__' + attr + '__Overall_visualisation.pdf')
-                                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__raw__' + attr + '__Overall.npy',arr=cm_total)
+                                fig.savefig('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__raw__' + attr + '__' + contact_setting + '_visualisation.pdf')
+                                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__raw__' + attr + '__' + contact_setting + '.npy',arr=cm_total)
                             else:
-                                fig.savefig('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__raw__' + attr + '__Overall_visualisation.pdf')
-                                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__raw__' + attr + '__Overall.npy',arr=cm_total)
+                                fig.savefig('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__raw__' + attr + '__' + contact_setting + '_visualisation.pdf')
+                                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__raw__' + attr + '__' + contact_setting + '.npy',arr=cm_total)
                         else:
                             if groundtruth:
-                                fig.savefig('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt_processed__' + attr + '__Overall_visualisation.pdf')
-                                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__processed__' + attr + '__Overall.npy',arr=cm_total)
+                                fig.savefig('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt_processed__' + attr + '__' + contact_setting + '_visualisation.pdf')
+                                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__gt__processed__' + attr + '__' + contact_setting + '.npy',arr=cm_total)
                             else:
-                                fig.savefig('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__processed__' + attr + '__Overall_visualisation.pdf')
-                                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__processed__' + attr + '__Overall.npy',arr=cm_total)
+                                fig.savefig('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__processed__' + attr + '__' + contact_setting + '_visualisation.pdf')
+                                np.save('../Data/Contact matrices/' + input_network + '__' + experiment + '__' + input_params + '_*' + '__biased__processed__' + attr + '__' + contact_setting + '.npy',arr=cm_total)
 

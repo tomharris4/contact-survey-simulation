@@ -63,7 +63,7 @@ ax[0].text(
 # Panel B - l=0.25 - SIR Non-White
 attr = 'ar'
 input_params = '1'
-target_groups_input = 'Non-White'
+target_groups_input = 'AIAN'
 if metric == 'ar':
     I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
     I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
@@ -95,7 +95,7 @@ ax[1].xaxis.set_tick_params(length=0)
 legend = ax[1].legend(fontsize=8)
 for spine in ('top', 'right', 'bottom', 'left'):
     ax[1].spines[spine].set_visible(False)
-ax[1].set(title='non-White')
+ax[1].set(title='AIAN')
 ax[1].grid()
 ax[1].ticklabel_format(style='sci', axis='y')
 
@@ -126,8 +126,7 @@ for input_params in input_params_all:
 ar_diff_white = list(reversed(ar_diff_white))
 
 ar_diff_non_white = []
-
-# #Panel C - SIR Non-White difference
+# #Panel C - SIR White difference
 target_groups_input = 'non-White'
 for input_params in input_params_all:
     if metric == 'ar':
@@ -138,11 +137,46 @@ for input_params in input_params_all:
         I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
     ar_diff_non_white.append(max(I_biased) - max(I_groundtruth))
 
-
 ar_diff_non_white = list(reversed(ar_diff_non_white))
 
-ax[2].plot(r_1, ar_diff_non_white, alpha=0.5, lw=1.5, label='non-White')
+ar_diff_overall = [ar_diff_non_white[i] + ar_diff_white[i] for i in range(len(ar_diff_white))]
+
+ar_diff_aian = []
+
+# #Panel C - SIR AIAN difference
+target_groups_input = 'AIAN'
+for input_params in input_params_all:
+    if metric == 'ar':
+        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+    elif metric == 'prev':
+        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+    ar_diff_aian.append(max(I_biased) - max(I_groundtruth))
+
+
+ar_diff_aian = list(reversed(ar_diff_aian))
+
+ar_diff_other = []
+
+# #Panel C - SIR AIAN difference
+target_groups_input = 'Other'
+for input_params in input_params_all:
+    if metric == 'ar':
+        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Recovered.npy')
+    elif metric == 'prev':
+        I_biased = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__biased__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+        I_groundtruth = np.load('../Data/SIR trajectories/' + input_network + '__' + experiment + '__' + input_params + '__' + target_groups_input + '_*' + '__gt__processed__' + attr + '__' + pathogen + '__Overall_Infectious.npy')
+    ar_diff_other.append(max(I_biased) - max(I_groundtruth))
+
+
+ar_diff_other = list(reversed(ar_diff_other))
+
+ax[2].plot(r_1, ar_diff_aian, alpha=0.5, lw=1.5, label='AIAN')
 ax[2].plot(r_1, ar_diff_white, alpha=0.5, lw=1.5, label='White')
+ax[2].plot(r_1, ar_diff_other, alpha=0.5, lw=1.5, label='Other')
+ax[2].plot(r_1, ar_diff_overall, alpha=0.5, lw=1.5, label='Overall')
 ax[2].set_xlabel('Within-group bias ($1-l_{W}$)')
 if metric == 'ar':
     ax[2].set_ylabel('$\Delta$[Attack Rate]')
