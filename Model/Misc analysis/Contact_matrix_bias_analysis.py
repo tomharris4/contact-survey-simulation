@@ -182,9 +182,6 @@ age_pop_dist = [120467, 133396, 141965, 136600, 130735, 134971, 138814, 128595,
 
 age_pop_dist_reduced = [sum(age_pop_dist[0:4]), sum(age_pop_dist[4:13]), sum(age_pop_dist[13:])]
 
-print(age_pop_dist_reduced)
-exit()
-
 fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(8.27/1.5,11.69/1.5))
 
 input_bias = '4'

@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 experiment = 'exp2'
-pathogen = 'X_2_9'
+pathogen = 'C_2_9'
 metric =  'ar'
 
 if pathogen in ['C_2_9','X_2_9']:  
